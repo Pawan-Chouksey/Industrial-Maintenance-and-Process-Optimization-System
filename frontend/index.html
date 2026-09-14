@@ -1,0 +1,1060 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login and Registration — AeroPulse</title>
+    <meta name="description" content="Secure authentication portal and AeroPulse predictive telemetry system." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body class="bg-slate-100/70 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- 1. AUTHENTICATION PORTAL CONTAINER                                       -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <div id="auth-root-container" class="min-h-screen flex flex-col justify-between">
+      
+      <!-- Top Navigation / Brand Bar -->
+      <header id="auth-global-header" class="w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-30">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div id="auth-brand-logo" class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-xs">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div>
+              <span id="auth-brand-title" class="text-base font-bold tracking-tight text-slate-900 block leading-tight">
+                AuthPortal
+              </span>
+              <span class="text-[11px] font-medium text-slate-500 block leading-none">
+                Validated Login &amp; Registration
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-[11px] font-medium text-slate-600 border border-slate-200">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>OWASP Top 10 Compliant</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content Area -->
+      <main id="auth-main-content" class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div class="w-full max-w-lg">
+          
+          <!-- Notification Toast -->
+          <div id="auth-notification-toast" role="status" class="hidden mb-4 flex items-center gap-2.5 rounded-xl p-3.5 text-xs font-medium shadow-sm border border-emerald-200 bg-emerald-50 text-emerald-800">
+            <svg class="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span id="auth-toast-message">Notification</span>
+          </div>
+
+          <!-- Form Box Card -->
+          <div id="auth-card-panel" class="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm transition-all">
+            
+            <!-- Nav Tabs -->
+            <div id="auth-tab-navigation" role="tablist" class="flex rounded-xl bg-slate-100 p-1 mb-6 border border-slate-200/60">
+              <button
+                type="button"
+                id="tab-btn-login"
+                role="tab"
+                class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer bg-white text-indigo-700 shadow-xs"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                  <polyline points="10 17 15 12 10 7"/>
+                  <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                <span>Sign In</span>
+              </button>
+              <button
+                type="button"
+                id="tab-btn-register"
+                role="tab"
+                class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <line x1="19" y1="8" x2="19" y2="14"/>
+                  <line x1="22" y1="11" x2="16" y2="11"/>
+                </svg>
+                <span>Register</span>
+              </button>
+            </div>
+
+            <!-- ── VIEW A: LOGIN FORM ── -->
+            <div id="login-form-container" class="w-full">
+              <div class="mb-6">
+                <h2 id="login-header-title" class="text-2xl font-bold tracking-tight text-slate-900">
+                  Welcome Back
+                </h2>
+                <p id="login-header-subtitle" class="text-sm text-slate-500 mt-1">
+                  Sign in using your username, email address, or verified mobile number.
+                </p>
+              </div>
+
+              <!-- General Error Banner -->
+              <div id="login-general-error-banner" role="alert" class="hidden mb-5 flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50/90 p-3.5 text-rose-800 text-sm">
+                <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <div class="flex-1">
+                  <span class="font-semibold">Sign In Failed:</span> <span id="login-general-error-text">Error message</span>
+                </div>
+              </div>
+
+              <form id="login-form" novalidate class="space-y-4">
+                <!-- Identifier Field -->
+                <div id="login-field-group-identifier" class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="login-input-identifier" id="login-label-identifier" class="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                      Username, Email, or Mobile
+                    </label>
+                    <span id="login-identifier-badge" class="inline-flex items-center text-xs font-medium text-emerald-600"></span>
+                  </div>
+                  <div class="relative rounded-lg shadow-xs">
+                    <div id="login-identifier-icon-container" class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </div>
+                    <input
+                      id="login-input-identifier"
+                      type="text"
+                      name="identifier"
+                      autocomplete="username"
+                      placeholder="Username, email, or +1555..."
+                      class="block w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-indigo-600 focus:ring-indigo-100 focus:outline-none focus:ring-2"
+                    />
+                  </div>
+                  <p id="login-identifier-error" class="hidden text-xs text-rose-600"></p>
+                </div>
+
+                <!-- Password Field -->
+                <div id="login-field-group-password" class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="login-input-password" id="login-label-password" class="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                      Password
+                    </label>
+                  </div>
+                  <div class="relative rounded-lg shadow-xs">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                    </div>
+                    <input
+                      id="login-input-password"
+                      type="password"
+                      name="current-password"
+                      autocomplete="current-password"
+                      placeholder="Enter your password"
+                      class="block w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-indigo-600 focus:ring-indigo-100 focus:outline-none focus:ring-2"
+                    />
+                    <button
+                      type="button"
+                      id="login-btn-toggle-password"
+                      aria-label="Toggle password"
+                      class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                    >
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <p id="login-password-error" class="hidden text-xs text-rose-600">Password is required.</p>
+                </div>
+
+                <!-- Remember Me -->
+                <div id="login-field-group-remember" class="flex items-center justify-between pt-1">
+                  <label for="login-checkbox-remember" id="login-label-remember" class="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-600">
+                    <input
+                      id="login-checkbox-remember"
+                      type="checkbox"
+                      checked
+                      class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span>Remember this device for 30 days</span>
+                  </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  id="login-btn-submit"
+                  class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 transition-all cursor-pointer"
+                >
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                  </svg>
+                  <span>Sign In</span>
+                </button>
+              </form>
+
+              <!-- Quick Demo Pre-fill helper -->
+              <div id="login-quick-fill-section" class="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  Quick-Fill Registered Test User:
+                </p>
+                <div id="login-quick-fill-container" class="flex flex-wrap gap-2"></div>
+              </div>
+
+              <!-- Switch to Register -->
+              <div id="login-footer-switch" class="mt-6 text-center text-xs text-slate-500">
+                Don't have an account yet?
+                <button
+                  type="button"
+                  id="login-btn-switch-to-register"
+                  class="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer"
+                >
+                  Create an account
+                </button>
+              </div>
+            </div>
+
+            <!-- ── VIEW B: REGISTER FORM ── -->
+            <div id="register-form-container" class="hidden w-full">
+              <div class="mb-6">
+                <h2 id="register-header-title" class="text-2xl font-bold tracking-tight text-slate-900">
+                  Create an Account
+                </h2>
+                <p id="register-header-subtitle" class="text-sm text-slate-500 mt-1">
+                  Sign up with your credentials to get full access to the portal.
+                </p>
+              </div>
+
+              <!-- General Error Banner -->
+              <div id="register-general-error-banner" role="alert" class="hidden mb-5 flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50/90 p-3.5 text-rose-800 text-sm">
+                <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <div class="flex-1">
+                  <span class="font-semibold">Registration Issue:</span> <span id="register-general-error-text">Error message</span>
+                </div>
+              </div>
+
+              <form id="register-form" novalidate class="space-y-4">
+                <!-- Username Field -->
+                <div id="register-field-group-username" class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="register-input-username" id="register-label-username" class="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                      Username
+                    </label>
+                    <span id="register-username-badge" class="hidden inline-flex items-center text-xs font-medium text-emerald-600">
+                      <svg class="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Available
+                    </span>
+                  </div>
+                  <div class="relative rounded-lg shadow-xs">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <input
+                      id="register-input-username"
+                      type="text"
+                      name="username"
+                      autocomplete="username"
+                      placeholder="e.g. alex_rivera"
+                      class="block w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-indigo-600 focus:ring-indigo-100 focus:outline-none focus:ring-2"
+                    />
+                  </div>
+                  <p id="register-username-feedback" class="text-xs text-slate-500">
+                    3-20 characters; letters, numbers, underscores, and dots.
+                  </p>
+                </div>
+
+                <!-- Email Field -->
+                <div id="register-field-group-email" class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="register-input-email" id="register-label-email" class="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                      Email Address
+                    </label>
+                    <span id="register-email-badge" class="hidden inline-flex items-center text-xs font-medium text-emerald-600">
+                      <svg class="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Valid
+                    </span>
+                  </div>
+                  <div class="relative rounded-lg shadow-xs">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    </div>
+                    <input
+                      id="register-input-email"
+                      type="email"
+                      name="email"
+                      autocomplete="email"
+                      placeholder="alex.rivera@example.com"
+                      class="block w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-indigo-600 focus:ring-indigo-100 focus:outline-none focus:ring-2"
+                    />
+                  </div>
+                  <p id="register-email-feedback" class="hidden text-xs text-rose-600"></p>
+                </div>
+
+                <!-- Mobile Number Field with Country Selector -->
+                <div id="register-field-group-phone" class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="register-input-phone" id="register-label-phone" class="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                      Mobile Number
+                    </label>
+                    <span id="register-phone-badge" class="hidden inline-flex items-center text-xs font-medium text-emerald-600">
+                      <svg class="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Valid format
+                    </span>
+                  </div>
+                  <div class="flex rounded-lg shadow-xs">
+                    <select
+                      id="register-select-country-code"
+                      aria-label="Country Dial Code"
+                      class="rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 px-2.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 cursor-pointer"
+                    ></select>
+                    <div class="relative flex-1">
+                      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      </div>
+                      <input
+                        id="register-input-phone"
+                        type="tel"
+                        name="tel"
+                        autocomplete="tel"
+                        placeholder="(555) 000-0000"
+                        class="block w-full rounded-r-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-indigo-600 focus:ring-indigo-100 focus:outline-none focus:ring-2"
+                      />
+                    </div>
+                  </div>
+                  <p id="register-phone-feedback" class="text-xs text-slate-500">
+                    Sample layout: +1 (555) 000-0000
+                  </p>
+                </div>
+
+                <!-- Password Field -->
+                <div id="register-field-group-password" class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="register-input-password" id="register-label-password" class="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                      Password
+                    </label>
+                    <span id="register-password-strength-label" class="hidden text-xs font-semibold"></span>
+                  </div>
+                  <div class="relative rounded-lg shadow-xs">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <input
+                      id="register-input-password"
+                      type="password"
+                      name="new-password"
+                      autocomplete="new-password"
+                      placeholder="Create a strong password"
+                      class="block w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-indigo-600 focus:ring-indigo-100 focus:outline-none focus:ring-2"
+                    />
+                    <button
+                      type="button"
+                      id="register-btn-toggle-password"
+                      aria-label="Toggle password"
+                      class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                    >
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+
+                  <p class="text-[11px] text-slate-500 pt-0.5">Minimum 8 characters with uppercase, lowercase, number, and symbol.</p>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div id="register-field-group-confirm-password" class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="register-input-confirm-password" id="register-label-confirm-password" class="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                      Confirm Password
+                    </label>
+                    <span id="register-confirm-match-badge" class="hidden inline-flex items-center text-xs font-medium text-emerald-600">
+                      <svg class="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Match
+                    </span>
+                  </div>
+                  <div class="relative rounded-lg shadow-xs">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                    <input
+                      id="register-input-confirm-password"
+                      type="password"
+                      name="confirm-password"
+                      autocomplete="new-password"
+                      placeholder="Re-enter your password"
+                      class="block w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-indigo-600 focus:ring-indigo-100 focus:outline-none focus:ring-2"
+                    />
+                    <button
+                      type="button"
+                      id="register-btn-toggle-confirm-password"
+                      aria-label="Toggle password"
+                      class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                    >
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <p id="register-confirm-feedback" class="hidden text-xs text-rose-600"></p>
+                </div>
+
+                <!-- Terms Checkbox -->
+                <div id="register-field-group-terms" class="pt-1">
+                  <label for="register-checkbox-terms" id="register-label-terms" class="flex items-start gap-2.5 cursor-pointer select-none text-xs text-slate-600">
+                    <input
+                      id="register-checkbox-terms"
+                      type="checkbox"
+                      class="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span>
+                      I agree to the <span class="font-semibold text-indigo-600 hover:underline">Terms of Service</span> and <span class="font-semibold text-indigo-600 hover:underline">Privacy Policy</span>.
+                    </span>
+                  </label>
+                </div>
+
+                <!-- Register Button -->
+                <button
+                  type="submit"
+                  id="register-btn-submit"
+                  class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 transition-all cursor-pointer"
+                >
+                  <span>Create Account</span>
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+              </form>
+
+              <!-- Switch to Login -->
+              <div id="register-footer-switch" class="mt-6 text-center text-xs text-slate-500">
+                Already have an account?
+                <button
+                  type="button"
+                  id="register-btn-switch-to-login"
+                  class="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer"
+                >
+                  Sign In here
+                </button>
+              </div>
+            </div>
+
+            <!-- View C removed (auto-routes directly to Telemetry Cockpit) -->
+
+          </div>
+
+          <!-- Validation Checklist Rules Card Footer -->
+          <div id="auth-compliance-footer-card" class="mt-6 rounded-xl border border-slate-200 bg-white/70 p-4 text-xs text-slate-600">
+            <div class="flex items-center gap-2 mb-2 font-semibold text-slate-800">
+              <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+              <span>Active Validation Rules</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-500">
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                <span><strong>Username:</strong> 3-20 alphanumeric characters</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                <span><strong>Email:</strong> RFC 5322 regex validation</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                <span><strong>Mobile:</strong> E.164 dial-code + digits check</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                <span><strong>Password:</strong> 8+ chars, upper, lower, num, symbol</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      <!-- Global Footer -->
+      <footer id="auth-global-footer" class="w-full py-4 text-center text-xs text-slate-400 border-t border-slate-200/60 bg-white/50">
+        <p>Secure Client-Side Authentication Portal &bull; Designed with high-contrast accessibility</p>
+      </footer>
+
+
+
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- 2. AEROPULSE TELEMETRY AI COCKPIT CONTAINER                              -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <div id="dashboard-root-container" class="hidden-view min-h-screen bg-[#09090b] text-[#f4f4f5] antialiased p-4 sm:p-6 lg:p-7 font-sans">
+      
+      <!-- Hidden File Input for CSV Upload -->
+      <input id="dash-csv-input" type="file" accept=".csv,.txt" class="hidden" />
+
+      <!-- Top Status Strip -->
+      <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#27272a]">
+        <div class="flex items-center gap-3.5">
+          <div class="h-9 w-9 rounded bg-[#18181b] border border-[#27272a] flex items-center justify-center text-cyan-400 font-mono text-sm font-bold tracking-tighter">
+            AP
+          </div>
+          <div>
+            <div class="flex items-center gap-2.5">
+              <h1 class="text-base font-semibold tracking-tight text-white">Industrial-Maintenance-and-Process-Optimization-System</h1>
+              <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-[#18181b] text-zinc-400 border border-[#27272a]">
+                NASA CMAPSS FD001
+              </span>
+              <span class="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                LIVE AI ENGINE
+              </span>
+            </div>
+            <p class="text-xs text-zinc-400 mt-0.5">
+              Real-time Machine Learning Telemetry (LSTM &bull; XGBoost &bull; Autoencoder)
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Controls & Account Switch -->
+        <div class="flex flex-wrap items-center gap-2.5 text-xs font-mono">
+          <div class="px-3 py-1.5 bg-[#181a1f] border border-[#2e333d] rounded-lg flex items-center gap-2">
+            <span class="text-zinc-500">FLEET:</span>
+            <span id="dash-fleet-count" class="text-zinc-200 font-bold">10 ENGINES</span>
+          </div>
+
+          <button
+            type="button"
+            id="dash-btn-ingest"
+            class="px-3 py-1.5 bg-[#22252c] hover:bg-[#2c313c] border border-[#3f4553] hover:border-cyan-400 rounded-lg text-zinc-200 hover:text-white font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-sm"
+          >
+            <svg class="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>INGEST CSV</span>
+          </button>
+
+          <button
+            type="button"
+            id="dash-btn-account"
+            class="px-3 py-1.5 bg-[#2a2e38] hover:bg-[#363c4a] border border-[#3f4553] hover:border-zinc-400 text-white font-semibold rounded-lg transition cursor-pointer shadow-sm"
+          >
+            <span id="dash-top-user-name">ACCOUNT</span>
+          </button>
+
+          <button
+            type="button"
+            id="dash-btn-logout"
+            class="px-3 py-1.5 bg-[#22252c] hover:bg-rose-500/20 text-zinc-300 hover:text-rose-300 border border-[#3f4553] hover:border-rose-500/40 rounded-lg font-medium transition cursor-pointer shadow-sm"
+          >
+            SIGN OUT
+          </button>
+        </div>
+      </header>
+
+      <!-- Error Banner if needed -->
+      <div id="dash-error-banner" class="hidden my-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-xs font-mono text-rose-400 flex items-center gap-2">
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="dash-error-text">Error message</span>
+      </div>
+
+      <!-- Workspace Controls & Timeline Scrubber -->
+      <div class="my-5 p-3.5 bg-[#121316] border border-[#272a30] rounded-xl shadow-lg shadow-black/30">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+          <!-- Engine Selector -->
+          <div class="lg:col-span-3 flex items-center gap-2">
+            <label class="text-xs font-mono text-zinc-400 uppercase tracking-wider shrink-0 font-semibold">Engine:</label>
+            <select
+              id="dash-engine-select"
+              class="w-full bg-[#181a1f] border border-[#3b414f] hover:border-cyan-400/70 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white font-semibold focus:border-cyan-400 focus:outline-none transition cursor-pointer"
+            ></select>
+          </div>
+
+          <!-- Scrubber & Playback -->
+          <div class="lg:col-span-6 flex items-center gap-3">
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                id="dash-btn-step-back"
+                title="Step backward 1 cycle"
+                class="px-2.5 py-1.5 bg-[#242832] hover:bg-[#303644] border border-[#3b414f] hover:border-cyan-400 rounded-lg text-zinc-200 hover:text-white text-xs font-mono transition cursor-pointer shadow-sm"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button
+                type="button"
+                id="dash-btn-play"
+                class="px-3.5 py-1.5 border border-cyan-500/60 bg-cyan-500/15 hover:bg-cyan-500/25 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition text-cyan-300 hover:text-cyan-200 cursor-pointer shadow-[0_0_12px_rgba(34,211,238,0.2)]"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>STREAM</span>
+              </button>
+              <button
+                type="button"
+                id="dash-btn-step-fwd"
+                title="Step forward 1 cycle"
+                class="px-2.5 py-1.5 bg-[#242832] hover:bg-[#303644] border border-[#3b414f] hover:border-cyan-400 rounded-lg text-zinc-200 hover:text-white text-xs font-mono transition cursor-pointer shadow-sm"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+
+            <!-- Slider -->
+            <div class="flex-1 flex items-center gap-2">
+              <span class="text-[11px] font-mono text-zinc-500 font-bold">C30</span>
+              <input
+                id="dash-cycle-slider"
+                type="range"
+                min="30"
+                max="192"
+                value="145"
+                class="w-full h-1.5 bg-[#27272a] rounded appearance-none cursor-pointer accent-cyan-400"
+              />
+              <span id="dash-slider-max-label" class="text-[11px] font-mono text-zinc-500 font-bold">C192</span>
+            </div>
+
+            <!-- Indicator -->
+            <div class="px-2.5 py-1 bg-[#181a1f] border border-[#3b414f] rounded-lg font-mono text-xs text-white shrink-0 flex items-center gap-1.5 shadow-sm">
+              <span class="text-zinc-400">CYCLE</span>
+              <span id="dash-current-cycle-value" class="text-cyan-400 font-bold">145</span>
+              <span id="dash-cycle-infer-ping" class="hidden w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping ml-0.5" title="Evaluating ML..."></span>
+            </div>
+          </div>
+
+          <!-- Dataset Split Toggle & Reset -->
+          <div class="lg:col-span-3 flex items-center justify-end gap-2 text-xs font-mono">
+            <button
+              type="button"
+              id="dash-btn-split"
+              class="px-3 py-1.5 bg-[#242832] hover:bg-[#303644] border border-[#3b414f] hover:border-zinc-300 rounded-lg text-zinc-200 font-semibold transition cursor-pointer shadow-sm"
+            >
+              SPLIT: <span id="dash-split-label" class="text-cyan-400 uppercase font-bold">TRAIN</span>
+            </button>
+            <button
+              type="button"
+              id="dash-btn-reset"
+              title="Reset cycle to baseline (30)"
+              class="p-1.5 bg-[#242832] hover:bg-[#303644] border border-[#3b414f] hover:border-zinc-300 rounded-lg text-zinc-300 hover:text-white transition cursor-pointer shadow-sm"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Primary Live AI Metric Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-5">
+        
+        <!-- 1. HEALTH SCORE -->
+        <div class="p-4 bg-[#121215] border border-[#27272a] rounded-lg relative overflow-hidden transition-colors">
+          <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-1">
+            <span>HEALTH INDEX</span>
+            <span id="kpi-badge-health" class="px-1.5 py-0.5 rounded text-[10px] font-semibold border bg-amber-500/10 text-amber-400 border-amber-500/30">
+              CAUTION
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-2">
+            <span id="kpi-val-health" class="text-3xl font-bold font-mono tracking-tight text-white">69.4</span>
+            <span class="text-xs font-mono text-zinc-500">/ 100.0</span>
+          </div>
+          <div class="mt-3 w-full bg-[#18181b] h-1.5 rounded-full overflow-hidden">
+            <div id="kpi-bar-health" class="h-full rounded-full transition-all duration-300 bg-amber-400" style="width: 69.4%"></div>
+          </div>
+          <div class="mt-2.5 flex justify-between text-[11px] font-mono text-zinc-500">
+            <span>NOMINAL &gt;75</span>
+            <span id="kpi-stage-health" class="text-zinc-400 font-medium">STAGE 2 WEAR</span>
+          </div>
+        </div>
+
+        <!-- 2. PREDICTED RUL (LSTM) -->
+        <div class="p-4 bg-[#121215] border border-[#27272a] rounded-lg relative overflow-hidden transition-colors">
+          <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-1">
+            <span>PREDICTED RUL</span>
+            <span class="text-[10px] text-cyan-400 uppercase font-mono font-medium">LSTM Regressor</span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-2">
+            <span id="kpi-val-rul" class="text-3xl font-bold font-mono tracking-tight text-white">43</span>
+            <span class="text-xs font-mono text-zinc-400">CYCLES LEFT</span>
+          </div>
+          <div class="mt-3 w-full bg-[#18181b] h-1.5 rounded-full overflow-hidden">
+            <div id="kpi-bar-rul" class="h-full bg-cyan-400 rounded-full transition-all duration-300" style="width: 24%"></div>
+          </div>
+          <div class="mt-2.5 flex justify-between text-[11px] font-mono text-zinc-500">
+            <span>GROUND TRUTH:</span>
+            <span id="kpi-truth-rul" class="text-zinc-300 font-semibold font-mono">47 CYC</span>
+          </div>
+        </div>
+
+        <!-- 3. FAILURE RISK (XGBOOST) -->
+        <div class="p-4 bg-[#121215] border border-[#27272a] rounded-lg relative overflow-hidden transition-colors">
+          <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-1">
+            <span>FAILURE RISK (&le;30c)</span>
+            <span class="text-[10px] text-zinc-400 uppercase font-mono">XGBoost Class.</span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-2">
+            <span id="kpi-val-fail" class="text-3xl font-bold font-mono tracking-tight text-white">0.9%</span>
+            <span id="kpi-badge-fail" class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#18181b] text-zinc-400 border border-[#27272a]">
+              NORMAL
+            </span>
+          </div>
+          <div class="mt-3 w-full bg-[#18181b] h-1.5 rounded-full overflow-hidden">
+            <div id="kpi-bar-fail" class="h-full rounded-full transition-all duration-300 bg-cyan-400" style="width: 0.9%"></div>
+          </div>
+          <div class="mt-2.5 flex justify-between text-[11px] font-mono text-zinc-500">
+            <span>DECISION CUTOFF:</span>
+            <span class="text-zinc-400 font-mono">50.0%</span>
+          </div>
+        </div>
+
+        <!-- 4. ANOMALY DETECTOR (AUTOENCODER) -->
+        <div class="p-4 bg-[#121215] border border-[#27272a] rounded-lg relative overflow-hidden transition-colors">
+          <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-1">
+            <span>RECONSTRUCTION MSE</span>
+            <span class="text-[10px] text-zinc-400 uppercase font-mono">Autoencoder</span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-2">
+            <span id="kpi-val-anom" class="text-3xl font-bold font-mono tracking-tight text-white">0.0518</span>
+            <span id="kpi-badge-anom" class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              NORMAL
+            </span>
+          </div>
+          <div class="mt-3 w-full bg-[#18181b] h-1.5 rounded-full overflow-hidden">
+            <div id="kpi-bar-anom" class="h-full rounded-full transition-all duration-300 bg-emerald-400" style="width: 21%"></div>
+          </div>
+          <div class="mt-2.5 flex justify-between text-[11px] font-mono text-zinc-500">
+            <span>THRESHOLD:</span>
+            <span id="kpi-thresh-anom" class="text-zinc-400 font-mono">0.2434</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Persistent Cockpit Advisory Ticker -->
+      <div id="dash-advisory-ticker" class="hidden mb-5 px-4 py-2.5 bg-[#121215] border border-[#27272a] rounded-lg flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+        <div class="flex items-center gap-2.5">
+          <span id="dash-ticker-dot" class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <span id="dash-ticker-priority" class="font-bold text-zinc-300">[INFO]</span>
+          <span id="dash-ticker-headline" class="text-zinc-400">System operating normally.</span>
+        </div>
+        <span id="dash-ticker-eta" class="text-zinc-500">ACTION ETA: --</span>
+      </div>
+
+      <!-- Cockpit Tab Navigation Bar -->
+      <div class="border-b border-[#272a30] pb-3 flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="dash-tab-btn-trajectory"
+            class="px-3.5 py-2 rounded-lg text-xs font-mono font-semibold transition cursor-pointer flex items-center gap-2 bg-cyan-500/15 text-cyan-300 border border-cyan-500/50 shadow-[0_0_12px_rgba(34,211,238,0.2)]"
+          >
+            <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <span>Degradation Curves &amp; Trajectory</span>
+          </button>
+
+          <button
+            type="button"
+            id="dash-tab-btn-telemetry"
+            class="px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition cursor-pointer flex items-center gap-2 bg-[#181a1f] hover:bg-[#22262d] text-zinc-300 hover:text-white border border-[#2e333d] hover:border-zinc-400 shadow-sm"
+          >
+            <svg class="w-4 h-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>15-Channel Telemetry Matrix</span>
+            <span id="dash-tab-drift-count" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">0 Drift</span>
+          </button>
+
+          <button
+            type="button"
+            id="dash-tab-btn-diagnostics"
+            class="px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition cursor-pointer flex items-center gap-2 bg-[#181a1f] hover:bg-[#22262d] text-zinc-300 hover:text-white border border-[#2e333d] hover:border-zinc-400 shadow-sm"
+          >
+            <svg class="w-4 h-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <span>AI Root-Cause &amp; Diagnostics</span>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">F4</span>
+          </button>
+        </div>
+
+        <!-- Top Right Engine & Cycle Info Pill -->
+        <div class="flex items-center gap-2 text-xs font-mono">
+          <div class="px-3 py-1.5 rounded-lg bg-[#181a1f] border border-[#2e333d] flex items-center gap-1.5 shadow-sm">
+            <span class="text-zinc-500 font-bold">ENGINE:</span>
+            <span id="dash-tab-badge-eng" class="text-zinc-100 font-bold tracking-wider">ENG-001</span>
+          </div>
+          <div class="px-3 py-1.5 rounded-lg bg-[#181a1f] border border-[#2e333d] flex items-center gap-1.5 shadow-sm">
+            <span class="text-zinc-500 font-bold">CYCLE:</span>
+            <span id="dash-tab-badge-cyc" class="text-cyan-400 font-bold">61</span>
+            <span class="text-zinc-600">/</span>
+            <span id="dash-tab-badge-max" class="text-zinc-400 font-medium">192</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 1: TRAJECTORY PANEL ── -->
+      <div id="dash-panel-trajectory" class="space-y-4">
+        
+        <!-- Main Degradation Card: 2-Column Grid (Graph on Left, Stats on Right) -->
+        <div class="bg-[#121316] border border-[#272a30] rounded-xl p-5 shadow-xl shadow-black/40">
+          
+          <!-- Card Header: Title, Subtitle, and Highly Visible Metric Switchers -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-[#202329]">
+            <div>
+              <div class="flex items-center gap-2.5">
+                <h2 class="text-sm font-mono font-bold tracking-wide text-zinc-100 uppercase">
+                  Degradation Trajectory &amp; Multi-Model Lifespan Forecast
+                </h2>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                  Full Lifespan View
+                </span>
+              </div>
+              <p class="text-xs text-zinc-400 font-mono mt-1">
+                Synchronized cross-cycle inference across engine history (sampled every 4 cycles)
+              </p>
+            </div>
+
+            <!-- Highly Visible Clickable Metric Selectors -->
+            <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+              <button
+                type="button"
+                id="dash-metric-rul"
+                class="px-3 py-1.5 rounded-lg font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.25)] cursor-pointer flex items-center gap-1.5 transition-all"
+              >
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                <span>RUL Trajectory (LSTM)</span>
+              </button>
+              <button
+                type="button"
+                id="dash-metric-fail"
+                class="px-3 py-1.5 rounded-lg font-mono font-medium bg-[#1a1c22] hover:bg-[#252830] text-zinc-300 hover:text-white border border-[#373b45] hover:border-zinc-400 cursor-pointer flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <span class="w-2 h-2 rounded-full bg-amber-400 opacity-60"></span>
+                <span>Failure Risk (XGBoost)</span>
+              </button>
+              <button
+                type="button"
+                id="dash-metric-anom"
+                class="px-3 py-1.5 rounded-lg font-mono font-medium bg-[#1a1c22] hover:bg-[#252830] text-zinc-300 hover:text-white border border-[#373b45] hover:border-zinc-400 cursor-pointer flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <span class="w-2 h-2 rounded-full bg-emerald-400 opacity-60"></span>
+                <span>Anomaly Error (Autoencoder)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Main Content Grid: Graph on Left, Stats on Right -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+            
+            <!-- Left Side: Graph Section (Compact, Crisp & Well-Proportioned) -->
+            <div class="lg:col-span-8 flex flex-col justify-between bg-[#0e0f12] border border-[#202329] rounded-lg p-3.5 relative overflow-hidden">
+              <!-- Top Legend -->
+              <div class="flex items-center justify-between text-[11px] font-mono text-zinc-400 pb-2 border-b border-[#1c1e24] mb-2">
+                <div class="flex items-center gap-4">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-1 bg-cyan-400 rounded-full inline-block"></span>
+                    <span class="text-zinc-300 font-semibold">Model Inference</span>
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-0.5 border-b-2 border-dashed border-zinc-500 inline-block"></span>
+                    <span>Ground Truth</span>
+                  </span>
+                </div>
+                <span class="flex items-center gap-1.5 text-amber-400 font-semibold">
+                  <span class="w-3 h-0.5 border-b-2 border-dashed border-amber-400 inline-block"></span>
+                  <span>Critical Threshold (RUL &le; 30)</span>
+                </span>
+              </div>
+
+              <!-- SVG Graph Container -->
+              <div class="relative w-full overflow-hidden">
+                <svg id="dash-trajectory-svg" viewBox="0 0 750 280" preserveAspectRatio="none" class="w-full h-72"></svg>
+              </div>
+            </div>
+
+            <!-- Right Side: The 4 Stats Cards Stacking Neatly -->
+            <div class="lg:col-span-4 flex flex-col justify-between gap-3">
+              
+              <!-- Stat Card 1: LIFESPAN PROGRESS -->
+              <div class="p-3.5 bg-[#16181d] border border-[#2a2e38] hover:border-cyan-500/40 rounded-lg transition-all flex flex-col justify-between shadow-sm">
+                <div class="flex items-center justify-between text-[11px] font-mono tracking-wider text-zinc-400">
+                  <span>LIFESPAN PROGRESS</span>
+                  <span class="text-[10px] text-cyan-400 font-semibold">ELAPSED</span>
+                </div>
+                <div class="my-2">
+                  <div id="traj-stat-progress-val" class="text-2xl font-bold font-mono text-white tracking-tight">31.8%</div>
+                  <div class="w-full bg-[#20232a] h-1.5 rounded-full overflow-hidden mt-1.5">
+                    <div id="traj-stat-progress-bar" class="h-full bg-cyan-400 rounded-full transition-all duration-300" style="width: 31.8%"></div>
+                  </div>
+                </div>
+                <div id="traj-stat-progress-desc" class="text-[11px] font-mono text-zinc-400">
+                  Cycle 61 of 192 elapsed
+                </div>
+              </div>
+
+              <!-- Stat Card 2: PREDICTED END-OF-LIFE (EOL) -->
+              <div class="p-3.5 bg-[#16181d] border border-[#2a2e38] hover:border-cyan-500/40 rounded-lg transition-all flex flex-col justify-between shadow-sm">
+                <div class="flex items-center justify-between text-[11px] font-mono tracking-wider text-zinc-400">
+                  <span>PREDICTED END-OF-LIFE (EOL)</span>
+                  <span id="traj-stat-eol-badge" class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">PROJECTED</span>
+                </div>
+                <div class="my-1.5">
+                  <div id="traj-stat-eol-val" class="text-2xl font-bold font-mono text-cyan-400 tracking-tight">Cycle ~239</div>
+                </div>
+                <div class="text-[11px] font-mono text-zinc-400">
+                  LSTM Projected Burnout Cycle
+                </div>
+              </div>
+
+              <!-- Stat Card 3: CRITICAL HORIZON (RUL ≤ 30) -->
+              <div class="p-3.5 bg-[#16181d] border border-[#2a2e38] hover:border-amber-500/40 rounded-lg transition-all flex flex-col justify-between shadow-sm">
+                <div class="flex items-center justify-between text-[11px] font-mono tracking-wider text-zinc-400">
+                  <span>CRITICAL HORIZON (RUL &le; 30)</span>
+                  <span id="traj-stat-horizon-badge" class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">SAFETY BUFFER</span>
+                </div>
+                <div class="my-1.5">
+                  <div id="traj-stat-horizon-val" class="text-2xl font-bold font-mono text-amber-400 tracking-tight">148 Cycles Left</div>
+                </div>
+                <div class="text-[11px] font-mono text-zinc-400">
+                  Buffer before replacement cutoff
+                </div>
+              </div>
+
+              <!-- Stat Card 4: MODEL TRAJECTORY STATE -->
+              <div class="p-3.5 bg-[#16181d] border border-[#2a2e38] hover:border-emerald-500/40 rounded-lg transition-all flex flex-col justify-between shadow-sm">
+                <div class="flex items-center justify-between text-[11px] font-mono tracking-wider text-zinc-400">
+                  <span>MODEL TRAJECTORY STATE</span>
+                  <span id="traj-stat-state-badge" class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">CONFIRMED</span>
+                </div>
+                <div class="my-1.5 flex items-center gap-2">
+                  <span id="traj-stat-state-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                  <div id="traj-stat-state-val" class="text-2xl font-bold font-mono text-white tracking-tight">NORMAL</div>
+                </div>
+                <div id="traj-stat-state-desc" class="text-[11px] font-mono text-zinc-400">
+                  XGBoost: 0.0% risk
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ── TAB 2: TELEMETRY PANEL ── -->
+      <div id="dash-panel-telemetry" class="hidden space-y-4">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <div class="flex items-center gap-2">
+            <span id="dash-drift-count-badge" class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded text-[11px]">
+              0 DRIFTING
+            </span>
+            <button
+              type="button"
+              id="dash-filter-all"
+              class="px-3 py-1.5 rounded-lg bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/40 shadow-sm cursor-pointer"
+            >
+              ALL SENSORS (15)
+            </button>
+            <button
+              type="button"
+              id="dash-filter-drift"
+              class="px-3 py-1.5 rounded-lg bg-[#1a1c22] hover:bg-[#252830] text-zinc-300 hover:text-white border border-[#373b45] hover:border-zinc-400 cursor-pointer shadow-sm transition"
+            >
+              DRIFT ONLY
+            </button>
+          </div>
+
+          <div class="flex items-center gap-1.5 bg-[#14151a] p-1 rounded-lg border border-[#272a30]">
+            <button
+              type="button"
+              id="dash-view-grid"
+              title="Grid View"
+              class="p-2 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 cursor-pointer shadow-sm"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+            </button>
+            <button
+              type="button"
+              id="dash-view-table"
+              title="Table View"
+              class="p-2 rounded-md bg-[#1a1c22] hover:bg-[#252830] text-zinc-400 hover:text-white border border-[#373b45] hover:border-zinc-400 cursor-pointer transition"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sensor Grid -->
+        <div id="dash-telemetry-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3"></div>
+
+        <!-- Sensor Table -->
+        <div id="dash-telemetry-table" class="hidden overflow-x-auto rounded-lg border border-[#27272a] bg-[#121215]">
+          <table class="w-full text-left text-xs">
+            <thead class="border-b border-[#27272a] font-mono text-[11px] text-zinc-400 bg-[#18181b]">
+              <tr>
+                <th class="py-2.5 px-3">SENSOR ID</th>
+                <th class="py-2.5 px-3">PARAMETER</th>
+                <th class="py-2.5 px-3 text-right">VALUE</th>
+                <th class="py-2.5 px-3 text-right">NOMINAL</th>
+                <th class="py-2.5 px-3 text-right">DELTA (%)</th>
+                <th class="py-2.5 px-3 text-center">STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="dash-telemetry-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── TAB 3: DIAGNOSTICS & PRESCRIPTION PANEL ── -->
+      <div id="dash-panel-diagnostics" class="hidden space-y-4">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <!-- Left: Stage & Root Causes -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="p-4 bg-[#121215] border border-[#27272a] rounded-lg space-y-2">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-mono uppercase text-zinc-400">Current Degradation Phase</h3>
+                <span id="dash-diag-stage-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                  STAGE 2
+                </span>
+              </div>
+              <p id="dash-diag-stage-desc" class="text-xs text-zinc-300 leading-relaxed">
+                Evaluating degradation patterns and sensor drifts across turbine stages.
+              </p>
+            </div>
+
+            <div class="p-4 bg-[#121215] border border-[#27272a] rounded-lg space-y-3">
+              <h3 class="text-xs font-mono uppercase text-zinc-400">Attributed Root Cause Sensors (Shapley / Importance)</h3>
+              <div id="dash-diag-root-causes" class="space-y-3"></div>
+            </div>
+          </div>
+
+          <!-- Right: Prescriptive Action Card -->
+          <div class="lg:col-span-6">
+            <div class="p-5 bg-[#121215] border border-[#27272a] rounded-lg space-y-4 h-full flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 text-xs font-mono text-cyan-400 mb-2">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  <span>PRESCRIPTIVE MAINTENANCE DIRECTIVE</span>
+                </div>
+                <h2 id="dash-diag-rec-title" class="text-lg font-bold text-white tracking-tight">
+                  Action Required
+                </h2>
+                <p id="dash-diag-rec-body" class="text-xs text-zinc-300 mt-2 leading-relaxed">
+                  Loading prescriptive recommendation...
+                </p>
+              </div>
+
+              <div class="pt-4 border-t border-[#27272a] flex items-center justify-between font-mono text-xs">
+                <span class="text-zinc-500">MAINTENANCE WINDOW:</span>
+                <span id="dash-diag-rec-eta" class="text-amber-400 font-bold">ETA: ~45 Cycles</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Application Script Module -->
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

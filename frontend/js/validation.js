@@ -74,24 +74,49 @@ export function validateEmail(email) {
 /**
  * Validates phone numbers according to E.164 standards
  */
+export function normalizeMobileNumber(mobile, dialCode) {
+  const rawValue = (mobile || '').trim();
+  const selectedDialCode = dialCode || '+1';
+  const selectedCountryDigits = selectedDialCode.replace(/\D/g, '');
+  const matchedCountry = POPULAR_COUNTRY_CODES
+    .slice()
+    .sort((a, b) => b.dialCode.length - a.dialCode.length)
+    .find((country) => rawValue.startsWith(country.dialCode));
+  const effectiveDialCode = matchedCountry ? matchedCountry.dialCode : selectedDialCode;
+  const countryDigits = matchedCountry
+    ? matchedCountry.dialCode.replace(/\D/g, '')
+    : selectedCountryDigits;
+
+  let digitsOnly = rawValue.replace(/\D/g, '');
+  if (rawValue.startsWith('+') && countryDigits && digitsOnly.startsWith(countryDigits)) {
+    digitsOnly = digitsOnly.slice(countryDigits.length);
+  }
+
+  return {
+    dialCode: effectiveDialCode,
+    localNumber: digitsOnly,
+    e164Number: `${effectiveDialCode}${digitsOnly}`,
+  };
+}
+
 export function validateMobileNumber(mobile, dialCode) {
-  const digitsOnly = (mobile || '').replace(/\D/g, '');
+  const { localNumber: digitsOnly, dialCode: effectiveDialCode } = normalizeMobileNumber(mobile, dialCode);
   if (!digitsOnly) {
-    return { isValid: false, error: 'Mobile number is required.' };
+    return { isValid: false, error: 'Enter your mobile number after the country code.' };
   }
   if (digitsOnly.length < 7) {
-    return { isValid: false, error: 'Mobile number must be at least 7 digits.' };
+    return { isValid: false, error: 'Mobile number must include at least 7 digits after the country code.' };
   }
   if (digitsOnly.length > 15) {
     return { isValid: false, error: 'Mobile number cannot exceed 15 digits.' };
   }
-  if (dialCode === '+1' && digitsOnly.length !== 10) {
+  if (effectiveDialCode === '+1' && digitsOnly.length !== 10) {
     return { isValid: false, error: 'US/Canada phone numbers must be exactly 10 digits.' };
   }
-  if (dialCode === '+91' && digitsOnly.length !== 10) {
+  if (effectiveDialCode === '+91' && digitsOnly.length !== 10) {
     return { isValid: false, error: 'India mobile numbers must be exactly 10 digits.' };
   }
-  return { isValid: true, cleanNumber: digitsOnly };
+  return { isValid: true, cleanNumber: digitsOnly, dialCode: effectiveDialCode };
 }
 
 /**

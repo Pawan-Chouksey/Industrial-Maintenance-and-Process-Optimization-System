@@ -165,7 +165,7 @@ git clone https://github.com/your-username/Industrial-Maintenance-and-Process-Op
 cd Industrial-Maintenance-and-Process-Optimization-System
 
 # Create and activate virtual environment
-python -m venv .venv
+python3.13 -m venv .venv
 .venv\Scripts\activate      # Windows
 # source .venv/bin/activate # Linux / macOS
 

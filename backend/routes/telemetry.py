@@ -12,7 +12,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from src.inference_pipeline import predict_machine_health, _load_models
+from inference_pipeline import predict_machine_health, _load_models
 
 router = APIRouter(prefix="/api", tags=["ML Telemetry & Predictions"])
 

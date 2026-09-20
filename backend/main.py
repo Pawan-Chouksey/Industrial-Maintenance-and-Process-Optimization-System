@@ -44,9 +44,23 @@ app.include_router(telemetry_router)
 # ── Health check ───────────────────────────────────────────────────────────────
 @app.get("/", tags=["Health"])
 def root():
-    return {"message": "Industrial Maintenance Auth API is running ✅"}
+    return {
+        "message": "Industrial Maintenance Auth & ML Telemetry API is running ✅",
+        "docs": "/docs",
+        "dashboard": "/dashboard/",
+    }
 
 
 @app.get("/api/health", tags=["Health"])
 def health():
     return {"status": "ok"}
+
+
+# ── Frontend Dashboard Mount ──────────────────────────────────────────────────
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+if FRONTEND_DIR.exists():
+    app.mount("/dashboard", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="dashboard")
+

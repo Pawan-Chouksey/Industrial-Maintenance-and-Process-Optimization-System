@@ -124,7 +124,10 @@ export class DashboardController {
     this.setInferringState(true);
 
     if (this.inferTimer) clearTimeout(this.inferTimer);
-    const debounceMs = this.isPlaying ? 20 : 120;
+    const debounceMs = this.isPlaying ? 20 : 150;
+
+    const currentInferId = (this.inferId || 0) + 1;
+    this.inferId = currentInferId;
 
     this.inferTimer = setTimeout(async () => {
       try {
@@ -132,6 +135,8 @@ export class DashboardController {
           fetchEnginePredictionApi(this.selectedEngineId, this.selectedCycle, this.dataset, this.split),
           fetchEngineTelemetryApi(this.selectedEngineId, this.selectedCycle, this.dataset, this.split),
         ]);
+
+        if (this.inferId !== currentInferId) return; // Drop stale response
 
         this.prediction = predRes;
         this.telemetry = telemRes.sensors || [];
@@ -141,9 +146,13 @@ export class DashboardController {
         this.renderAdvisoryTicker();
         this.renderActiveTabContent();
       } catch (err) {
-        this.showError('Telemetry error: ' + err.message);
+        if (this.inferId === currentInferId) {
+          this.showError('Telemetry error: ' + err.message);
+        }
       } finally {
-        setTimeout(() => this.setInferringState(false), 140);
+        if (this.inferId === currentInferId) {
+          setTimeout(() => this.setInferringState(false), 140);
+        }
       }
     }, debounceMs);
   }
@@ -383,6 +392,17 @@ export class DashboardController {
       if (isInferring) pingDot.classList.remove('hidden');
       else pingDot.classList.add('hidden');
     }
+    
+    // Add visual loading feedback to the metric numbers
+    const kpiElements = ['health', 'rul', 'fail', 'anom'].map(k => document.getElementById(`kpi-val-${k}`));
+    kpiElements.forEach(el => {
+      if (!el) return;
+      if (isInferring && !this.isPlaying) {
+        el.classList.add('opacity-50', 'animate-pulse');
+      } else {
+        el.classList.remove('opacity-50', 'animate-pulse');
+      }
+    });
   }
 
   // ── KPI Metrics Rendering & Smooth Numbers ──────────────────────────────────
@@ -479,7 +499,14 @@ export class DashboardController {
   }
 
   smoothTransition(key, target, updateFn) {
-    const start = this.animValues[key] || target;
+    if (!this.animFrames) this.animFrames = {};
+    if (this.animFrames[key]) {
+      cancelAnimationFrame(this.animFrames[key]);
+    }
+
+    const start = this.animValues ? (this.animValues[key] !== undefined ? this.animValues[key] : target) : target;
+    if (!this.animValues) this.animValues = {};
+
     const startTime = performance.now();
     const duration = this.isPlaying ? 80 : 250;
 
@@ -490,13 +517,14 @@ export class DashboardController {
       const current = start + (target - start) * ease;
       this.animValues[key] = current;
       updateFn(current);
-      if (progress < 1) requestAnimationFrame(frame);
-      else {
+      if (progress < 1) {
+        this.animFrames[key] = requestAnimationFrame(frame);
+      } else {
         this.animValues[key] = target;
         updateFn(target);
       }
     };
-    requestAnimationFrame(frame);
+    this.animFrames[key] = requestAnimationFrame(frame);
   }
 
   renderAdvisoryTicker() {

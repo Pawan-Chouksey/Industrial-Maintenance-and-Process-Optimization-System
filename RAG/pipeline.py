@@ -1,6 +1,6 @@
-from retriever import RAGRetriever
-from prompt import build_maintenance_prompt
-from llm import GeminiLLM
+from .retriever import RAGRetriever
+from .prompt import build_maintenance_prompt
+from .llm import GeminiLLM
 
 
 class RAGPipeline:
@@ -24,6 +24,29 @@ class RAGPipeline:
             return {
                 "query": query,
                 "answer": "",
+                "sources": [],
+            }
+        normalized_query = query.strip().lower().rstrip("!.,?")
+
+        greetings = {
+            "hi",
+            "hello",
+            "hey",
+            "hi there",
+            "hello there",
+            "good morning",
+            "good afternoon",
+            "good evening",
+        }
+
+        if normalized_query in greetings:
+            return {
+                "query": query.strip(),
+                "answer": (
+                    "Hi! How can I help you today? "
+                    "You can ask me about machine faults, "
+                    "maintenance procedures, or equipment health."
+                ),
                 "sources": [],
             }
 

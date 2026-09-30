@@ -4,26 +4,24 @@ import pickle
 import faiss
 import numpy as np
 
-from loader import load_all_documents
-from cleaner import clean_text
-from chunker import chunk_text
-from embeddings import EmbeddingModel
+from .loader import load_all_documents
+from .cleaner import clean_text
+from .chunker import chunk_text
+from .embeddings import embed_texts
 
 
 # Paths
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+RAG_DIR = Path(__file__).resolve().parent
 
-VECTOR_STORE_PATH = PROJECT_ROOT / "data" / "RAG_vector_store"
+VECTOR_STORE_PATH = RAG_DIR / "data" / "RAG_vector_store"
 INDEX_PATH = VECTOR_STORE_PATH / "vector.index"
-METADATA_PATH = VECTOR_STORE_PATH / "metadata.pkl"
+META_PATH = VECTOR_STORE_PATH / "metadata.pkl"
 
 
 def build_vector_store():
     """Build and save the FAISS vector store from RAG documents."""
 
     VECTOR_STORE_PATH.mkdir(parents=True, exist_ok=True)
-
-    embedding_model = EmbeddingModel()
 
     all_chunks = []
     metadata = []
@@ -57,7 +55,7 @@ def build_vector_store():
     print(f"\nTotal chunks: {len(all_chunks)}")
     print("Creating embeddings...")
 
-    embeddings = embedding_model.embed_texts(all_chunks)
+    embeddings = embed_texts(all_chunks)
 
     embeddings = np.asarray(embeddings, dtype="float32")
 

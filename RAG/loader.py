@@ -1,8 +1,8 @@
 from pathlib import Path
 from pypdf import PdfReader
 # RAG document directory
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DOCUMENTS_PATH = PROJECT_ROOT / "data" / "RAG_documents"
+RAG_DIR = Path(__file__).resolve().parent
+DOCUMENTS_PATH = RAG_DIR / "data" / "RAG_documents"
 def load_pdf(file_path: Path) -> str:
     """Extract text from a single PDF."""
     reader = PdfReader(file_path)

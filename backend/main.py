@@ -1,6 +1,8 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from dotenv import load_dotenv
 
 from pathlib import Path
 
@@ -12,6 +14,8 @@ from routes.rag import router as rag_router
 
 # ── App ────────────────────────────────────────────────────────────────────────
 
+load_dotenv()
+
 app = FastAPI(
     title="Industrial Maintenance System — Auth & ML Telemetry API",
     description="User management and real-time NASA C-MAPSS ML inference pipeline.",
@@ -21,9 +25,15 @@ app = FastAPI(
 
 # ── CORS ───────────────────────────────────────────────────────────────────────
 
+configured_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
+    allow_origins=configured_origins + [
         # Live Server
         "http://localhost:5500",
         "http://127.0.0.1:5500",

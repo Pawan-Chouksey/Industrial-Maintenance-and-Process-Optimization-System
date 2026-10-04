@@ -10,7 +10,9 @@
 // ============================================================
 
 const configuredApiBase =
-  window.VITE_API_URL?.trim().replace(/\/+$/, '') || '';
+  (import.meta.env?.VITE_API_URL || window.VITE_API_URL || '')
+    .trim()
+    .replace(/\/+$/, '');
 
 export const API_BASE =
   configuredApiBase || 'http://127.0.0.1:8000';
@@ -25,23 +27,46 @@ console.info(`[API] Backend URL: ${API_BASE}`);
 async function apiRequest(endpoint, options = {}, timeout = 15000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
+  const { signal: externalSignal, ...fetchOptions } = options;
+  const abortRequest = () => controller.abort();
+  if (externalSignal) {
+    if (externalSignal.aborted) controller.abort();
+    else externalSignal.addEventListener('abort', abortRequest, { once: true });
+  }
 
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
+      ...fetchOptions,
       signal: controller.signal,
     });
 
-    const data = await response.json().catch(() => ({}));
+    const responseText = await response.text();
+    let data = null;
+
+    if (responseText) {
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = null;
+      }
+    }
 
     if (!response.ok) {
-      const detail = data.detail;
+      const detail = data?.detail;
       const message =
         typeof detail === 'string'
           ? detail
-          : JSON.stringify(detail || data);
+          : detail
+            ? JSON.stringify(detail)
+            : responseText.trim().slice(0, 1000) || response.statusText;
 
       throw new Error(`HTTP ${response.status}: ${message}`);
+    }
+
+    if (data === null) {
+      throw new Error(
+        `Backend returned a successful HTTP ${response.status} response with invalid JSON.`
+      );
     }
 
     return data;
@@ -55,6 +80,7 @@ async function apiRequest(endpoint, options = {}, timeout = 15000) {
     throw error;
   } finally {
     clearTimeout(timeoutId);
+    externalSignal?.removeEventListener('abort', abortRequest);
   }
 }
 
@@ -91,8 +117,9 @@ export async function chatMaintenanceApi(payload) {
           top_k: payload.top_k || 5,
           history: payload.history || [],
         }),
+        signal: payload.signal,
       },
-      60000
+      180000
     );
 
     console.log('[RAG] Response:', data);

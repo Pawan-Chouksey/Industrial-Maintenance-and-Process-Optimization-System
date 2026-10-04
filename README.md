@@ -179,10 +179,10 @@ Navigate to the `backend/` directory and run Uvicorn:
 
 ```bash
 cd backend
-uvicorn main:app --reload --port 8001
+PYTHONPATH=.. python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Verify backend interactive Swagger docs at [http://localhost:8001/docs](http://localhost:8001/docs).
+Verify backend interactive Swagger docs at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
 ### 3. Launch the Frontend
 
@@ -192,9 +192,20 @@ You can serve the `frontend/` directory using any local web server:
 * **Python Built-in HTTP Server**:
   ```bash
   cd frontend
-  python -m http.server 5500
+  python3 -m http.server 5500
   ```
 * Open your browser and navigate to: `http://localhost:5500`
 
----
+For local development, the frontend API defaults to `http://127.0.0.1:8000`.
+For another computer on the same LAN, either run its own backend or set
+`window.VITE_API_URL` to the host Mac's LAN URL (for example,
+`http://192.168.1.20:8000`) in a small script loaded before the frontend module
+in `frontend/index.html`. Never use `0.0.0.0` as the browser API address. If the
+frontend is hosted from a different LAN origin, set `CORS_ORIGINS` in the
+backend environment to that exact origin, such as
+`http://192.168.1.31:5500`; local loopback origins are already allowed.
 
+Chat history is stored in that browser's localStorage, scoped to the signed-in
+user when a user ID is available. It does not sync between computers.
+
+---

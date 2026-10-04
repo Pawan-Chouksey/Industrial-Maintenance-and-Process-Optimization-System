@@ -69,14 +69,14 @@ def build_vector_store():
     faiss.write_index(index, str(INDEX_PATH))
 
     # Save metadata
-    with open(METADATA_PATH, "wb") as file:
+    with open(META_PATH, "wb") as file:
         pickle.dump(metadata, file)
 
     print("\nVector store created successfully.")
     print(f"Vectors stored: {index.ntotal}")
     print(f"Embedding dimension: {dimension}")
     print(f"Index: {INDEX_PATH}")
-    print(f"Metadata: {METADATA_PATH}")
+    print(f"Metadata: {META_PATH}")
     
 if __name__ == "__main__":
     build_vector_store()

@@ -281,3 +281,594 @@ body.maintenance-assistant-open {
   overflow-wrap: anywhere;
   line-height: 1.6;
 }
+/* Welcome panel */
+.maintenance-assistant-welcome {
+  width: 100%;
+  margin: auto 0;
+  padding: 0.5rem 0;
+  animation: assistant-message-in 300ms ease both;
+}
+
+.maintenance-assistant-welcome h3 {
+  margin: 0 0 0.5rem;
+  color: #f4f4f5;
+  font-size: 1.15rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.maintenance-assistant-welcome > p {
+  margin: 0 0 1.25rem;
+  color: #a1a1aa;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* Suggested maintenance actions */
+.maintenance-assistant-suggestions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.maintenance-assistant-suggestion {
+  display: flex;
+  min-width: 0;
+  min-height: 5.25rem;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.7rem;
+  border: 1px solid #303640;
+  border-radius: 0.65rem;
+  background: linear-gradient(145deg, #171b21, #101216);
+  padding: 0.85rem;
+  color: #e4e4e7;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.maintenance-assistant-suggestion:hover {
+  transform: translateY(-2px);
+  border-color: #22d3ee;
+  background: #10242b;
+}
+
+.maintenance-assistant-suggestion:focus-visible,
+.maintenance-assistant-action:focus-visible {
+  outline: 2px solid #67e8f9;
+  outline-offset: 3px;
+}
+
+.maintenance-assistant-suggestion-icon {
+  color: #67e8f9;
+  font-size: 1.2rem;
+}
+
+/* Message arrival */
+.maintenance-assistant-message {
+  animation: assistant-message-in 240ms ease both;
+}
+
+@keyframes assistant-message-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Message actions */
+.maintenance-assistant-message-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.65rem;
+}
+
+.maintenance-assistant-action {
+  border: 1px solid #3b414f;
+  border-radius: 0.4rem;
+  background: #181a1f;
+  padding: 0.35rem 0.6rem;
+  color: #a1a1aa;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.maintenance-assistant-action:hover,
+.maintenance-assistant-action[data-state="success"] {
+  border-color: #0891b2;
+  color: #67e8f9;
+}
+
+/* Small screens */
+@media (max-width: 480px) {
+  .maintenance-assistant-header {
+    padding: 0.9rem 1rem;
+  }
+
+  .maintenance-assistant-messages {
+    padding: 0.9rem;
+  }
+
+  .maintenance-assistant-suggestions {
+    grid-template-columns: 1fr;
+  }
+
+  .maintenance-assistant-suggestion {
+    min-height: 3.75rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .maintenance-assistant-message,
+  .maintenance-assistant-welcome {
+    animation: none;
+  }
+
+  .maintenance-assistant-suggestion {
+    transition: none;
+  }
+}
+/* Small icon-only message actions */
+.assistant-message-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.assistant-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 8px;
+  color: #a1a1aa;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.assistant-icon-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.assistant-icon-button:hover {
+  color: #67e8f9;
+  background: rgba(34, 211, 238, 0.09);
+  border-color: rgba(34, 211, 238, 0.2);
+}
+
+.assistant-icon-button.is-copied {
+  color: #67e8f9;
+}
+
+/* Typing cursor */
+.is-typing::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -2px;
+  background: #67e8f9;
+  animation: assistant-caret 0.8s steps(2, start) infinite;
+}
+
+@keyframes assistant-caret {
+  to { visibility: hidden; }
+}
+
+/* Cleaner, compact chat input */
+.maintenance-assistant textarea {
+  width: 100%;
+  min-height: 48px;
+  max-height: 150px;
+  padding: 14px 16px;
+  color: #f4f4f5;
+  background: #181a20;
+  border: 1px solid #30343f;
+  border-radius: 16px;
+  outline: none;
+  resize: none;
+  font: inherit;
+  line-height: 1.5;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.maintenance-assistant textarea:focus {
+  border-color: rgba(34, 211, 238, 0.65);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
+}
+
+.maintenance-assistant textarea::placeholder {
+  color: #858995;
+}
+
+@media (max-width: 600px) {
+  .assistant-icon-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .maintenance-assistant textarea {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-typing::after {
+    animation: none;
+  }
+
+  .assistant-icon-button,
+  .maintenance-assistant textarea {
+    transition: none;
+  }
+}
+/* Header icon buttons */
+.maintenance-assistant-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Copy, edit and speaker icons */
+.maintenance-assistant-icon-button,
+.maintenance-assistant-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  color: #a1a1aa;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.maintenance-assistant-icon-button svg,
+.maintenance-assistant-clear svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.maintenance-assistant-icon-button:hover,
+.maintenance-assistant-clear:hover {
+  color: #67e8f9;
+  background: rgba(34, 211, 238, 0.09);
+}
+
+.maintenance-assistant-icon-button.is-copied,
+.maintenance-assistant-icon-button.is-speaking {
+  color: #67e8f9;
+}
+
+/* User question bubble */
+.maintenance-assistant-message.is-user {
+  width: fit-content;
+  max-width: 88%;
+  margin-left: auto;
+}
+
+.maintenance-assistant-message.is-user
+.maintenance-assistant-message-content {
+  padding: 13px 17px;
+  color: #f4f4f5;
+  background: #173f78;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  border-radius: 20px 20px 5px 20px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* Assistant answer */
+.maintenance-assistant-message.is-assistant {
+  width: 100%;
+  margin-right: auto;
+}
+
+.maintenance-assistant-message.is-assistant
+.maintenance-assistant-message-content {
+  padding: 4px 0;
+  color: #e4e4e7;
+  background: transparent;
+  border: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
+/* Message actions */
+.maintenance-assistant-message-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.maintenance-assistant-message.is-user
+.maintenance-assistant-message-actions {
+  justify-content: flex-end;
+}
+
+.maintenance-assistant-message.is-assistant
+.maintenance-assistant-message-actions {
+  justify-content: flex-start;
+}
+
+/* Typing cursor */
+.maintenance-assistant-message-content.is-typing::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -2px;
+  background: #67e8f9;
+  animation: assistant-caret 0.8s steps(2, start) infinite;
+}
+
+@keyframes assistant-caret {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* Compact rounded input */
+.maintenance-assistant-compose {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 7px 8px 7px 15px;
+  background: #181a20;
+  border: 1px solid #343741;
+  border-radius: 18px;
+}
+
+.maintenance-assistant-compose:focus-within {
+  border-color: rgba(34, 211, 238, 0.65);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
+}
+
+.maintenance-assistant-compose textarea {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  max-height: 150px;
+  padding: 6px 0;
+  color: #f4f4f5;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  resize: none;
+  box-shadow: none;
+  font: inherit;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.maintenance-assistant-compose textarea:focus {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.maintenance-assistant-compose textarea::placeholder {
+  color: #858995;
+}
+
+.maintenance-assistant-send {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .maintenance-assistant-message.is-user {
+    max-width: 94%;
+  }
+
+  .maintenance-assistant-icon-button,
+  .maintenance-assistant-clear {
+    width: 38px;
+    height: 38px;
+  }
+
+  .maintenance-assistant-compose textarea {
+    font-size: 16px;
+  }
+}
+
+/* Respect reduced-motion settings */
+@media (prefers-reduced-motion: reduce) {
+  .maintenance-assistant-message-content.is-typing::after {
+    animation: none;
+  }
+}
+
+/* Compact chat layout */
+.maintenance-assistant-message {
+  border: 0;
+  background: transparent;
+  padding: 0.25rem 0;
+}
+
+.maintenance-assistant-message.is-user {
+  max-width: 82%;
+  border: 1px solid #155e75;
+  border-radius: 1rem 1rem 0.25rem 1rem;
+  background: #083344;
+  padding: 0.65rem 0.85rem;
+}
+
+.maintenance-assistant-message.is-assistant {
+  max-width: 100%;
+}
+
+.maintenance-assistant-message.is-assistant .maintenance-assistant-message-content {
+  margin-top: 0.35rem;
+}
+
+.maintenance-assistant-message-content h3,
+.maintenance-assistant-message-content h4,
+.maintenance-assistant-message-content h5,
+.maintenance-assistant-message-content h6 {
+  margin: 0.65rem 0 0.25rem;
+  color: #f4f4f5;
+}
+
+.maintenance-assistant-message-content ul,
+.maintenance-assistant-message-content ol {
+  margin: 0.25rem 0 0.55rem;
+  padding-left: 1.35rem;
+}
+
+.maintenance-assistant-message-content code {
+  border-radius: 0.25rem;
+  background: #272a30;
+  padding: 0.08rem 0.25rem;
+  font-family: monospace;
+}
+
+.maintenance-assistant-message-actions {
+  display: flex;
+  gap: 0.2rem;
+  margin-top: 0.25rem;
+}
+
+.maintenance-assistant-icon-button,
+.maintenance-assistant-clear {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.maintenance-assistant-icon-button:hover,
+.maintenance-assistant-clear:hover,
+.maintenance-assistant-icon-button.is-speaking {
+  background: #272a30;
+  color: #67e8f9;
+}
+
+.maintenance-assistant-icon-button svg,
+.maintenance-assistant-clear svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.maintenance-assistant-message-content.is-typing::after {
+  display: inline-block;
+  width: 0.42rem;
+  height: 1em;
+  margin-left: 0.12rem;
+  background: #67e8f9;
+  animation: assistant-caret 750ms steps(2, start) infinite;
+  content: "";
+  vertical-align: -0.12em;
+}
+
+@keyframes assistant-caret {
+  to { visibility: hidden; }
+}
+
+.maintenance-assistant-sources {
+  margin-top: 0.4rem;
+  color: #a1a1aa;
+  font-size: 0.75rem;
+}
+
+.maintenance-assistant-sources summary {
+  color: #67e8f9;
+  cursor: pointer;
+}
+
+.maintenance-assistant-sources ul {
+  padding-left: 1.2rem;
+}
+
+.maintenance-assistant-retry {
+  align-self: flex-start;
+  border: 1px solid #52525b;
+  border-radius: 0.5rem;
+  background: #181a1f;
+  padding: 0.4rem 0.75rem;
+  color: #e4e4e7;
+  cursor: pointer;
+}
+
+.maintenance-assistant-compose {
+  border: 1px solid #3b414f;
+  border-radius: 1rem;
+  background: #09090b;
+  padding: 0.35rem 0.4rem 0.35rem 0.8rem;
+}
+
+.maintenance-assistant-compose textarea,
+.maintenance-assistant-compose textarea:focus {
+  min-height: 2rem;
+  max-height: 150px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 0.4rem 0;
+  resize: none;
+  box-shadow: none;
+}
+
+.maintenance-assistant-label {
+  display: none;
+}

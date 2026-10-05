@@ -9,6 +9,7 @@ import {
   fetchEngineTrendApi,
   uploadSensorCsvApi,
 } from './api.js';
+import { MaintenanceAssistant } from './maintenanceAssistant.js';
 
 export class DashboardController {
   constructor(app) {
@@ -49,6 +50,26 @@ export class DashboardController {
     this.bindHeaderEvents();
     this.bindWorkspaceEvents();
     this.bindTabEvents();
+    this.maintenanceAssistant = new MaintenanceAssistant({
+  userId: this.app.currentUser?.id,
+
+  getMachineContext: () => {
+    if (!this.prediction) return {};
+
+    return {
+      engine_id: this.selectedEngineId,
+      cycle: this.selectedCycle,
+      predicted_rul: this.prediction.predicted_rul,
+      failure_probability: this.prediction.failure_probability,
+      failure_status: this.prediction.failure_status,
+      anomaly_score: this.prediction.anomaly_score,
+      anomaly_status: this.prediction.anomaly_status,
+      health_score: this.prediction.health_score,
+      health_status: this.prediction.health_status,
+    };
+  },
+});
+    this.maintenanceAssistant.init();
     this.bindTelemetryFilterEvents();
     this.bindCsvEvents();
   }
@@ -632,7 +653,7 @@ export class DashboardController {
       if (tabTelem) tabTelem.className = activeClass;
       if (panelTelem) panelTelem.classList.remove('hidden');
       this.renderTelemetryPanel();
-    } else {
+    } else if (tab === 'diagnostics') {
       if (tabDiag) tabDiag.className = activeClass;
       if (panelDiag) panelDiag.classList.remove('hidden');
       this.renderDiagnosticsPanel();

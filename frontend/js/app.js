@@ -1,14 +1,19 @@
+
 /**
  * app.js - Application coordinator and view router
+ * Restores the dashboard after page refresh.
  */
 
 import { AuthController } from './auth.js';
 import { DashboardController } from './dashboard.js';
 import { fetchCurrentUser } from './api.js';
 
+const TOKEN_KEY = 'access_token';
+const USER_KEY = 'maintenance_current_user';
+
 class App {
   constructor() {
-    this.currentView = 'login'; // 'login' | 'register' | 'authenticated' | 'dashboard'
+    this.currentView = 'login';
     this.currentUser = null;
     this.toastTimer = null;
 
@@ -16,46 +21,168 @@ class App {
     this.dashCtrl = new DashboardController(this);
   }
 
-  async init() {
-    this.authCtrl.init();
-    this.dashCtrl.init();
-    this.bindGlobalEvents();
+  // ----------------------------------------------------------
+  // SESSION HELPERS
+  // ----------------------------------------------------------
 
-    // Check for existing token
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      try {
-        const apiUser = await fetchCurrentUser(token);
-        this.currentUser = {
-          id: apiUser.id,
-          username: apiUser.username,
-          email: apiUser.email,
-          countryCode: '+1',
-          mobileNumber: apiUser.mobile || '',
-          registeredAt: new Date().toISOString(),
-        };
-        this.setView('authenticated');
-      } catch (e) {
-        localStorage.removeItem('access_token');
-        this.setView('login');
-      }
-    } else {
-      this.setView('login');
+  saveUser(user) {
+    if (!user) return;
+
+    this.currentUser = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      countryCode: user.countryCode || '+1',
+      mobileNumber: user.mobileNumber || user.mobile || '',
+      registeredAt: user.registeredAt || new Date().toISOString(),
+    };
+
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify(this.currentUser)
+    );
+  }
+
+  getSavedUser() {
+    try {
+      const saved = localStorage.getItem(USER_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error('[Auth] Could not read saved user:', error);
+      return null;
     }
   }
 
+  clearSession() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    this.currentUser = null;
+  }
+
+  // ----------------------------------------------------------
+  // INITIALIZATION / SESSION RESTORATION
+  // ----------------------------------------------------------
+
+  async init() {
+  this.authCtrl.init();
+  this.dashCtrl.init();
+  this.bindGlobalEvents();
+
+  const token = localStorage.getItem('access_token');
+  const savedUser = localStorage.getItem('user_data');
+
+  // Remove the boot screen immediately.
+  document.body.classList.remove('app-booting');
+
+  // No saved login: show the login page.
+  if (!token) {
+    this.setView('login');
+    return;
+  }
+
+  // Restore the dashboard immediately from cached user data.
+  if (savedUser) {
+    try {
+      this.currentUser = JSON.parse(savedUser);
+      this.setView('dashboard');
+
+      // Validate the token in the background.
+      this.validateSession(token);
+      return;
+    } catch (error) {
+      console.error('Could not restore saved user:', error);
+      localStorage.removeItem('user_data');
+    }
+  }
+
+  // First reload after this change, or missing cached user.
+  // Show the login UI instead of a blank screen while checking.
+  this.setView('login');
+
+  try {
+    const apiUser = await fetchCurrentUser(token);
+
+    this.currentUser = {
+      id: apiUser.id,
+      username: apiUser.username,
+      email: apiUser.email,
+      countryCode: '+1',
+      mobileNumber: apiUser.mobile || '',
+      registeredAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(
+      'user_data',
+      JSON.stringify(this.currentUser)
+    );
+
+    this.setView('dashboard');
+  } catch (error) {
+    console.error('Session restore failed:', error);
+
+    if (error.message.startsWith('HTTP 401:')) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user_data');
+    }
+  }
+}
+
+async validateSession(token) {
+  try {
+    const apiUser = await fetchCurrentUser(token);
+
+    // Refresh cached user details without interrupting the dashboard.
+    this.currentUser = {
+      ...this.currentUser,
+      id: apiUser.id,
+      username: apiUser.username,
+      email: apiUser.email,
+      mobileNumber: apiUser.mobile || '',
+    };
+
+    localStorage.setItem(
+      'user_data',
+      JSON.stringify(this.currentUser)
+    );
+  } catch (error) {
+    console.error('Background session check failed:', error);
+
+    // Only log out when the backend explicitly rejects the token.
+    if (error.message.startsWith('HTTP 401:')) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user_data');
+      this.currentUser = null;
+      this.setView('login');
+    }
+
+    // Network errors and timeouts do not force a logout.
+  }
+}
+
+  // ----------------------------------------------------------
+  // GLOBAL EVENTS
+  // ----------------------------------------------------------
+
   bindGlobalEvents() {
-    // Auth navigation tabs (Sign In / Register)
     const tabLogin = document.getElementById('tab-btn-login');
     const tabRegister = document.getElementById('tab-btn-register');
 
     if (tabLogin) {
-      tabLogin.addEventListener('click', () => this.setView('login'));
+      tabLogin.addEventListener('click', () => {
+        this.setView('login');
+      });
     }
+
     if (tabRegister) {
-      tabRegister.addEventListener('click', () => this.setView('register'));
+      tabRegister.addEventListener('click', () => {
+        this.setView('register');
+      });
     }
   }
+
+  // ----------------------------------------------------------
+  // VIEW ROUTER
+  // ----------------------------------------------------------
 
   setView(viewName) {
     this.currentView = viewName;
@@ -70,38 +197,60 @@ class App {
     const loginView = document.getElementById('login-form-container');
     const registerView = document.getElementById('register-form-container');
     const accountView = document.getElementById('account-dashboard-view');
-    const complianceFooter = document.getElementById('auth-compliance-footer-card');
+    const complianceFooter = document.getElementById(
+      'auth-compliance-footer-card'
+    );
 
     if (viewName === 'dashboard') {
       if (authRoot) authRoot.classList.add('hidden-view');
       if (dashRoot) dashRoot.classList.remove('hidden-view');
+
       this.dashCtrl.activate();
       return;
     }
 
-    // Otherwise in Auth portal
+    // Show the authentication portal.
     if (dashRoot) dashRoot.classList.add('hidden-view');
     if (authRoot) authRoot.classList.remove('hidden-view');
+
     this.dashCtrl.deactivate();
 
     if (viewName === 'login') {
       if (authTabs) authTabs.classList.remove('hidden');
-      if (tabLogin) tabLogin.className = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer bg-white text-indigo-700 shadow-xs';
-      if (tabRegister) tabRegister.className = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900';
+
+      if (tabLogin) {
+        tabLogin.className =
+          'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer bg-white text-indigo-700 shadow-xs';
+      }
+
+      if (tabRegister) {
+        tabRegister.className =
+          'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900';
+      }
 
       if (loginView) loginView.classList.remove('hidden');
       if (registerView) registerView.classList.add('hidden');
       if (accountView) accountView.classList.add('hidden');
       if (complianceFooter) complianceFooter.classList.remove('hidden');
+
     } else if (viewName === 'register') {
       if (authTabs) authTabs.classList.remove('hidden');
-      if (tabRegister) tabRegister.className = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer bg-white text-indigo-700 shadow-xs';
-      if (tabLogin) tabLogin.className = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900';
+
+      if (tabRegister) {
+        tabRegister.className =
+          'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer bg-white text-indigo-700 shadow-xs';
+      }
+
+      if (tabLogin) {
+        tabLogin.className =
+          'flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900';
+      }
 
       if (loginView) loginView.classList.add('hidden');
       if (registerView) registerView.classList.remove('hidden');
       if (accountView) accountView.classList.add('hidden');
       if (complianceFooter) complianceFooter.classList.remove('hidden');
+
     } else if (viewName === 'authenticated') {
       if (authTabs) authTabs.classList.add('hidden');
       if (loginView) loginView.classList.add('hidden');
@@ -115,56 +264,67 @@ class App {
     }
   }
 
+  // ----------------------------------------------------------
+  // LOGIN / REGISTER / LOGOUT
+  // ----------------------------------------------------------
+
   handleLoginSuccess(user, token) {
-    localStorage.setItem('access_token', token);
-    this.currentUser = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      countryCode: '+1',
-      mobileNumber: user.mobile || '',
-      registeredAt: new Date().toISOString(),
-    };
+  this.currentUser = {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    countryCode: '+1',
+    mobileNumber: user.mobile || '',
+    registeredAt: new Date().toISOString(),
+  };
 
-    this.setView('dashboard');
-    this.showNotification(`Welcome back, @${user.username}!`, 'success');
-  }
+  localStorage.setItem('access_token', token);
+  localStorage.setItem(
+    'user_data',
+    JSON.stringify(this.currentUser)
+  );
 
-  handleRegisterSuccess(user) {
-    this.currentUser = user;
-    this.setView('authenticated');
-    this.showNotification(`Account created successfully for @${user.username}!`, 'success');
-  }
+  this.setView('dashboard');
 
-  handleLogout() {
-    localStorage.removeItem('access_token');
-    this.currentUser = null;
-    this.setView('login');
-    this.showNotification('You have been signed out safely.', 'info');
-  }
+  this.showNotification(
+    `Welcome back, @${user.username}!`,
+    'success'
+  );
+}
+
+  // ----------------------------------------------------------
+  // NOTIFICATIONS
+  // ----------------------------------------------------------
 
   showNotification(message, type = 'success') {
     const toast = document.getElementById('auth-notification-toast');
     const msgEl = document.getElementById('auth-toast-message');
+
     if (!toast || !msgEl) return;
 
-    if (this.toastTimer) clearTimeout(this.toastTimer);
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
 
     msgEl.textContent = message;
+
     if (type === 'success') {
-      toast.className = 'mb-4 flex items-center gap-2.5 rounded-xl p-3.5 text-xs font-medium shadow-sm border border-emerald-200 bg-emerald-50 text-emerald-800 fade-in';
+      toast.className =
+        'mb-4 flex items-center gap-2.5 rounded-xl p-3.5 text-xs font-medium shadow-sm border border-emerald-200 bg-emerald-50 text-emerald-800 fade-in';
     } else {
-      toast.className = 'mb-4 flex items-center gap-2.5 rounded-xl p-3.5 text-xs font-medium shadow-sm border border-indigo-200 bg-indigo-50 text-indigo-800 fade-in';
+      toast.className =
+        'mb-4 flex items-center gap-2.5 rounded-xl p-3.5 text-xs font-medium shadow-sm border border-indigo-200 bg-indigo-50 text-indigo-800 fade-in';
     }
 
     toast.classList.remove('hidden');
+
     this.toastTimer = setTimeout(() => {
       toast.classList.add('hidden');
     }, 4500);
   }
 }
 
-// Instantiate and start app on DOM ready
+// Start the application when the page is ready.
 document.addEventListener('DOMContentLoaded', () => {
   const app = new App();
   app.init();

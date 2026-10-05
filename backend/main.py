@@ -1,10 +1,17 @@
 import os
+import sys
+from pathlib import Path
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent
+for p in (str(PROJECT_ROOT), str(BASE_DIR)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from dotenv import load_dotenv
-
-from pathlib import Path
 
 from routes.auth import router as auth_router
 from routes.users import router as users_router

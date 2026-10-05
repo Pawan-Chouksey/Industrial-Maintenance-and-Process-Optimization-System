@@ -30,7 +30,7 @@ def register(body: RegisterRequest):
         "username": body.username.strip().lower(),
         "email":    body.email.strip().lower(),
         "password": hash_password(body.password),
-        "mobile":   body.mobile.strip(),
+        "mobile":   body.mobile.strip() if body.mobile else None,
     }
 
     try:
@@ -58,15 +58,20 @@ def login(body: LoginRequest):
     Login with username or email + password.
     Returns a JWT `access_token` to use in protected routes.
     """
-    identifier = body.identifier.strip().lower()
+    raw_identifier = body.identifier.strip()
+    identifier_lower = raw_identifier.lower()
+    clean_digits = "".join(filter(str.isdigit, raw_identifier))
 
-    # Find user by username OR email
-    user = users_collection.find_one({
-        "$or": [
-            {"username": identifier},
-            {"email":    identifier},
-        ]
-    })
+    # Find user by username OR email OR mobile
+    or_clauses = [
+        {"username": identifier_lower},
+        {"email":    identifier_lower},
+    ]
+    if clean_digits:
+        or_clauses.append({"mobile": clean_digits})
+        or_clauses.append({"mobile": raw_identifier})
+
+    user = users_collection.find_one({"$or": or_clauses})
 
     if not user:
         raise HTTPException(

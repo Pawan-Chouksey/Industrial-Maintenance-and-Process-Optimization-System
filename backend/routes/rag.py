@@ -1,9 +1,15 @@
 import logging
+import sys
+from pathlib import Path
 from threading import Lock
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from RAG.llm import GeminiConfigurationError
 from RAG.pipeline import RAGPipeline

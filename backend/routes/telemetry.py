@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 from functools import lru_cache
 from pathlib import Path
 from io import BytesIO
@@ -43,6 +43,38 @@ SENSOR_METADATA = [
     {"sensor_id": "sensor_21", "ui_id": "s_21", "name": "LPT Coolant Bleed",        "unit": "lbm/s",  "nominal": 23.32},
 ]
 
+AIRCRAFT_MODELS = [
+    "Boeing 737",
+    "Boeing 777",
+    "Airbus A320",
+    "Boeing 787",
+    "Airbus A350",
+    "Airbus A330",
+    "Boeing 747",
+    "Boeing 767",
+    "Airbus A321",
+    "Boeing 737 MAX",
+    "Airbus A220",
+    "Boeing 777X",
+    "Airbus A380",
+    "Embraer E195",
+    "Bombardier CRJ",
+    "Boeing 757",
+    "Airbus A319",
+    "Boeing 787-9",
+    "Airbus A350-1000",
+    "Boeing 737-800",
+    "Boeing 777-300ER",
+    "Airbus A330neo",
+    "Boeing 747-8",
+    "Airbus A320neo",
+    "Boeing 787-10",
+]
+
+def get_engine_name(engine_id: int) -> str:
+    idx = (int(engine_id) - 1) % len(AIRCRAFT_MODELS)
+    return f"{AIRCRAFT_MODELS[idx]} Turbofan #{int(engine_id):02d}"
+
 @lru_cache(maxsize=4)
 def _load_cmapss_df(dataset: str = "FD001", split: str = "train") -> pd.DataFrame:
     filename = f"{split}_{dataset}.txt"
@@ -62,6 +94,7 @@ def get_engines(dataset: str = "FD001", split: str = "train"):
             max_c = int(group["cycle"].max())
             engines.append({
                 "engine_id": int(eng_id),
+                "engine_name": get_engine_name(int(eng_id)),
                 "min_cycle": min_c,
                 "max_cycle": max_c,
                 "total_cycles": max_c - min_c + 1,
@@ -110,7 +143,12 @@ def get_engine_telemetry(engine_id: int, cycle: int = Query(..., ge=1), dataset:
             "status": status,
         })
 
-    return {"engine_id": engine_id, "cycle": cycle, "sensors": sensors}
+    return {
+        "engine_id": engine_id,
+        "engine_name": get_engine_name(engine_id),
+        "cycle": cycle,
+        "sensors": sensors,
+    }
 
 @router.get("/engines/{engine_id}/predict")
 def predict_engine(engine_id: int, cycle: int = Query(..., ge=1), dataset: str = "FD001", split: str = "train"):
@@ -183,6 +221,7 @@ def predict_engine(engine_id: int, cycle: int = Query(..., ge=1), dataset: str =
 
     return {
         "engine_id": engine_id,
+        "engine_name": get_engine_name(engine_id),
         "cycle": cycle,
         "predicted_rul": rul,
         "true_rul": true_rul,
@@ -238,6 +277,7 @@ def get_engine_trend(engine_id: int, dataset: str = "FD001", split: str = "train
 
     return {
         "engine_id": engine_id,
+        "engine_name": get_engine_name(engine_id),
         "dataset": dataset,
         "max_cycle": max_cycle,
         "threshold": float(m["anomaly_threshold"]),

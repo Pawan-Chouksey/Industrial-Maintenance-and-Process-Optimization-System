@@ -41,23 +41,58 @@ const API = (() => {
     { sensor_id: "s_21", name: "LPT Coolant Bleed",         unit: "lbm/s",   nominal: 23.32,   weight: 0.05, driftDir: -1 }
   ];
 
+  // Realistic commercial aircraft turbofan designations for intuitive identification
+  const AIRCRAFT_MODELS = [
+    "Boeing 737",
+    "Boeing 777",
+    "Airbus A320",
+    "Boeing 787",
+    "Airbus A350",
+    "Airbus A330",
+    "Boeing 747",
+    "Boeing 767",
+    "Airbus A321",
+    "Boeing 737 MAX",
+    "Airbus A220",
+    "Boeing 777X",
+    "Airbus A380",
+    "Embraer E195",
+    "Bombardier CRJ",
+    "Boeing 757",
+    "Airbus A319",
+    "Boeing 787-9",
+    "Airbus A350-1000",
+    "Boeing 737-800",
+    "Boeing 777-300ER",
+    "Airbus A330neo",
+    "Boeing 747-8",
+    "Airbus A320neo",
+    "Boeing 787-10"
+  ];
+
+  function getEngineName(engineId) {
+    const id = Number(engineId) || 1;
+    const idx = (id - 1) % AIRCRAFT_MODELS.length;
+    return `${AIRCRAFT_MODELS[idx]} Turbofan #${String(id).padStart(2, "0")}`;
+  }
+
   // Engine cycle profiles for realistic simulation
   const SIMULATED_ENGINES = [
-    { engine_id: 1,  min_cycle: 1, max_cycle: 192, total_cycles: 192, dataset: "FD001", split: "train" },
-    { engine_id: 2,  min_cycle: 1, max_cycle: 287, total_cycles: 287, dataset: "FD001", split: "train" },
-    { engine_id: 3,  min_cycle: 1, max_cycle: 179, total_cycles: 179, dataset: "FD001", split: "train" },
-    { engine_id: 4,  min_cycle: 1, max_cycle: 189, total_cycles: 189, dataset: "FD001", split: "train" },
-    { engine_id: 5,  min_cycle: 1, max_cycle: 269, total_cycles: 269, dataset: "FD001", split: "train" },
-    { engine_id: 6,  min_cycle: 1, max_cycle: 188, total_cycles: 188, dataset: "FD001", split: "train" },
-    { engine_id: 7,  min_cycle: 1, max_cycle: 259, total_cycles: 259, dataset: "FD001", split: "train" },
-    { engine_id: 8,  min_cycle: 1, max_cycle: 150, total_cycles: 150, dataset: "FD001", split: "train" },
-    { engine_id: 9,  min_cycle: 1, max_cycle: 201, total_cycles: 201, dataset: "FD001", split: "train" },
-    { engine_id: 10, min_cycle: 1, max_cycle: 222, total_cycles: 222, dataset: "FD001", split: "train" },
-    { engine_id: 11, min_cycle: 1, max_cycle: 240, total_cycles: 240, dataset: "FD001", split: "train" },
-    { engine_id: 12, min_cycle: 1, max_cycle: 170, total_cycles: 170, dataset: "FD001", split: "train" },
-    { engine_id: 13, min_cycle: 1, max_cycle: 163, total_cycles: 163, dataset: "FD001", split: "train" },
-    { engine_id: 14, min_cycle: 1, max_cycle: 180, total_cycles: 180, dataset: "FD001", split: "train" },
-    { engine_id: 15, min_cycle: 1, max_cycle: 207, total_cycles: 207, dataset: "FD001", split: "train" }
+    { engine_id: 1,  engine_name: getEngineName(1),  min_cycle: 1, max_cycle: 192, total_cycles: 192, dataset: "FD001", split: "train" },
+    { engine_id: 2,  engine_name: getEngineName(2),  min_cycle: 1, max_cycle: 287, total_cycles: 287, dataset: "FD001", split: "train" },
+    { engine_id: 3,  engine_name: getEngineName(3),  min_cycle: 1, max_cycle: 179, total_cycles: 179, dataset: "FD001", split: "train" },
+    { engine_id: 4,  engine_name: getEngineName(4),  min_cycle: 1, max_cycle: 189, total_cycles: 189, dataset: "FD001", split: "train" },
+    { engine_id: 5,  engine_name: getEngineName(5),  min_cycle: 1, max_cycle: 269, total_cycles: 269, dataset: "FD001", split: "train" },
+    { engine_id: 6,  engine_name: getEngineName(6),  min_cycle: 1, max_cycle: 188, total_cycles: 188, dataset: "FD001", split: "train" },
+    { engine_id: 7,  engine_name: getEngineName(7),  min_cycle: 1, max_cycle: 259, total_cycles: 259, dataset: "FD001", split: "train" },
+    { engine_id: 8,  engine_name: getEngineName(8),  min_cycle: 1, max_cycle: 150, total_cycles: 150, dataset: "FD001", split: "train" },
+    { engine_id: 9,  engine_name: getEngineName(9),  min_cycle: 1, max_cycle: 201, total_cycles: 201, dataset: "FD001", split: "train" },
+    { engine_id: 10, engine_name: getEngineName(10), min_cycle: 1, max_cycle: 222, total_cycles: 222, dataset: "FD001", split: "train" },
+    { engine_id: 11, engine_name: getEngineName(11), min_cycle: 1, max_cycle: 240, total_cycles: 240, dataset: "FD001", split: "train" },
+    { engine_id: 12, engine_name: getEngineName(12), min_cycle: 1, max_cycle: 170, total_cycles: 170, dataset: "FD001", split: "train" },
+    { engine_id: 13, engine_name: getEngineName(13), min_cycle: 1, max_cycle: 163, total_cycles: 163, dataset: "FD001", split: "train" },
+    { engine_id: 14, engine_name: getEngineName(14), min_cycle: 1, max_cycle: 180, total_cycles: 180, dataset: "FD001", split: "train" },
+    { engine_id: 15, engine_name: getEngineName(15), min_cycle: 1, max_cycle: 207, total_cycles: 207, dataset: "FD001", split: "train" }
   ];
 
   // Helper for auth headers
@@ -189,6 +224,7 @@ const API = (() => {
 
     return {
       engine_id: Number(engineId),
+      engine_name: eng.engine_name || getEngineName(engineId),
       cycle: Number(cycle),
       sensors: sensors
     };
@@ -281,6 +317,7 @@ const API = (() => {
 
     return {
       engine_id: Number(engineId),
+      engine_name: eng.engine_name || getEngineName(engineId),
       cycle: Number(cycle),
       predicted_rul: predictedRul,
       true_rul: trueRul,
@@ -317,6 +354,7 @@ const API = (() => {
 
     return {
       engine_id: Number(engineId),
+      engine_name: eng.engine_name || getEngineName(engineId),
       dataset: eng.dataset,
       max_cycle: maxC,
       threshold: 0.2434,
@@ -326,6 +364,7 @@ const API = (() => {
 
   // Public API methods
   return {
+    getEngineName,
     async checkStatus() {
       await checkBackendHealth();
       return {

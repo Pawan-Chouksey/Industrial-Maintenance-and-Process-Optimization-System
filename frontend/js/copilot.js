@@ -166,7 +166,8 @@ const Copilot = (() => {
     if (!badge || typeof Dashboard === "undefined" || !Dashboard.getCurrentState) return;
 
     const st = Dashboard.getCurrentState();
-    badge.textContent = `Target: Engine #${st.engine_id} | Cycle ${st.cycle}/${st.max_cycle}`;
+    const name = st.engine_name || `Engine #${st.engine_id}`;
+    badge.textContent = `Target: ${name} | Cycle ${st.cycle}/${st.max_cycle}`;
   }
 
   async function handleSend(queryText) {
@@ -188,9 +189,11 @@ const Copilot = (() => {
     const injectCheckbox = document.getElementById("copilot-inject-context");
     if (injectCheckbox && injectCheckbox.checked && typeof Dashboard !== "undefined" && Dashboard.getCurrentState) {
       const st = Dashboard.getCurrentState();
+      const engName = st.engine_name || `Engine #${st.engine_id}`;
       machineContext = {
         engine_id: st.engine_id,
-        subsystem: "NASA C-MAPSS FD001 Turbofan",
+        engine_name: engName,
+        subsystem: `${engName} (${st.dataset || "FD001"})`,
         current_cycle: st.cycle,
         total_rated_cycles: st.max_cycle,
         condition: `Cycle ${st.cycle} of ${st.max_cycle}`

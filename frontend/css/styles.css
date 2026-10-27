@@ -510,28 +510,6 @@ input[type="range"].cycle-slider::-moz-range-thumb {
   }
 }
 
-/* Modal Backdrop & Dialog */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
-.modal-dialog {
-  background-color: var(--bg-surface-1);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 580px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
 /* Technical Status Dot */
 .status-dot {
   width: 8px;
@@ -618,10 +596,6 @@ input[type="range"].cycle-slider::-moz-range-thumb {
 }
 
 .sidebar.collapsed .sidebar-label {
-  display: none;
-}
-
-.sidebar.collapsed .sidebar-badge {
   display: none;
 }
 
@@ -752,6 +726,22 @@ input[type="range"].cycle-slider::-moz-range-thumb {
 
 .sidebar.collapsed .sidebar-footer-full {
   display: none;
+}
+
+.sidebar.collapsed .sidebar-footer-compact {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-user-tile {
+  transition: all 0.18s ease;
+}
+
+.sidebar-user-tile:hover {
+  background-color: var(--bg-surface-hover) !important;
+  border-color: var(--border-focus) !important;
 }
 
 /* Main Area Container */

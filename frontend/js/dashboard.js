@@ -97,10 +97,7 @@ const Dashboard = (() => {
       telemetryLoaderBadge: document.getElementById("telemetry-loader-badge"),
       recLoaderBadge: document.getElementById("rec-loader-badge"),
 
-      // CSV Upload Modal
-      btnOpenUploadModal: document.getElementById("btn-open-upload-modal"),
-      uploadModal: document.getElementById("upload-modal"),
-      btnCloseUploadModal: document.getElementById("btn-close-upload-modal"),
+      // Batch CSV Upload Studio
       csvFileInput: document.getElementById("csv-file-input"),
       csvDropZone: document.getElementById("csv-drop-zone"),
       csvUploadStatus: document.getElementById("csv-upload-status"),
@@ -115,9 +112,10 @@ const Dashboard = (() => {
     try {
       availableEngines = await API.getEngines(currentDataset, currentSplit);
       if (dom.engineSelect) {
-        dom.engineSelect.innerHTML = availableEngines.map(eng => 
-          `<option value="${eng.engine_id}">Engine #${String(eng.engine_id).padStart(2, '0')} (${eng.total_cycles} Cycles)</option>`
-        ).join("");
+        dom.engineSelect.innerHTML = availableEngines.map(eng => {
+          const name = eng.engine_name || (API.getEngineName ? API.getEngineName(eng.engine_id) : `Boeing 737 Turbofan #${String(eng.engine_id).padStart(2, '0')}`);
+          return `<option value="${eng.engine_id}">${name} (${eng.total_cycles} Cycles)</option>`;
+        }).join("");
 
         // Select initial
         const match = availableEngines.find(e => e.engine_id === currentEngineId) || availableEngines[0];
@@ -807,18 +805,6 @@ const Dashboard = (() => {
       renderSvgChart();
     });
 
-    // CSV Upload Modal controls
-    if (dom.btnOpenUploadModal && dom.uploadModal) {
-      dom.btnOpenUploadModal.addEventListener("click", () => {
-        dom.uploadModal.style.display = "flex";
-      });
-    }
-    if (dom.btnCloseUploadModal && dom.uploadModal) {
-      dom.btnCloseUploadModal.addEventListener("click", () => {
-        dom.uploadModal.style.display = "none";
-      });
-    }
-
     // Drag and drop CSV
     if (dom.csvDropZone && dom.csvFileInput) {
       dom.csvDropZone.addEventListener("click", () => dom.csvFileInput.click());
@@ -923,13 +909,20 @@ const Dashboard = (() => {
       togglePlayback();
     },
 
+    pausePlayback() {
+      pausePlayback();
+    },
+
     renderChart() {
       renderSvgChart();
     },
 
     getCurrentState() {
+      const eng = availableEngines.find(e => e.engine_id === currentEngineId);
+      const engineName = eng?.engine_name || (API.getEngineName ? API.getEngineName(currentEngineId) : `Turbofan #${currentEngineId}`);
       return {
         engine_id: currentEngineId,
+        engine_name: engineName,
         dataset: currentDataset,
         cycle: currentCycle,
         max_cycle: maxCycle

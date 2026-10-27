@@ -72,24 +72,119 @@ const App = (() => {
     switchAuthTab(tab);
   }
 
+  const PANELS_WITHOUT_CYCLE_SCRUBBER = new Set([
+    "panel-batch",
+    "panel-copilot",
+    "panel-account"
+  ]);
+
+  function updateCycleScrubberVisibility(panelId) {
+    const scrubberBar = document.getElementById("cycle-scrubber-bar");
+    if (!scrubberBar) return;
+
+    if (PANELS_WITHOUT_CYCLE_SCRUBBER.has(panelId)) {
+      scrubberBar.style.display = "none";
+      if (typeof Dashboard !== "undefined" && typeof Dashboard.pausePlayback === "function") {
+        Dashboard.pausePlayback();
+      }
+    } else {
+      scrubberBar.style.display = "block";
+    }
+  }
+
   function showDashboardView() {
     const authView = document.getElementById("view-auth");
     const dashView = document.getElementById("view-dashboard");
     if (authView) authView.style.display = "none";
     if (dashView) dashView.style.display = "block";
 
-    // Update user display
-    const user = Auth.getUser();
-    const userBadge = document.getElementById("user-profile-badge");
-    if (userBadge && user) {
-      userBadge.textContent = user.username.toUpperCase();
-    }
+    // Update user display & account credentials
+    updateUserProfileUI();
+
+    // Ensure cycle scrubber visibility matches active panel
+    const activePanel = document.querySelector(".cockpit-panel.active");
+    updateCycleScrubberVisibility(activePanel ? activePanel.id : "panel-overview");
 
     if (!isDashboardInitialized) {
       Dashboard.init();
       isDashboardInitialized = true;
     } else {
       Dashboard.refresh();
+    }
+  }
+
+  async function updateUserProfileUI() {
+    let user = Auth.getUser();
+    if (!user) {
+      const cached = localStorage.getItem("aero_user_profile");
+      if (cached) {
+        try { user = JSON.parse(cached); } catch (e) {}
+      }
+    }
+
+    try {
+      const remote = await API.getProfile();
+      if (remote && remote.username) {
+        user = { ...user, ...remote };
+      }
+    } catch (e) {
+      // offline / simulated fallback
+    }
+
+    if (!user) {
+      user = {
+        username: "lead_operator",
+        email: "operator@turbofan-prognostics.nasa.gov",
+        mobile: "+1 (555) 019-2831",
+        id: "usr_sim_001"
+      };
+    }
+
+    const username = (user.username || "lead_operator").trim();
+    const initials = (username.length >= 2 ? username.slice(0, 2) : "OP").toUpperCase();
+
+    // 1. Top Navbar Badge
+    const userBadge = document.getElementById("user-profile-badge");
+    if (userBadge) {
+      userBadge.textContent = username.toUpperCase();
+      userBadge.style.cursor = "pointer";
+      userBadge.title = "View User Account";
+      userBadge.onclick = () => {
+        const item = document.querySelector(".sidebar-nav-item[data-target='panel-account']");
+        if (item) item.click();
+      };
+    }
+
+    // 2. Sidebar Footer User Tile
+    const sidebarName = document.getElementById("sidebar-user-name");
+    if (sidebarName) sidebarName.textContent = username;
+    const sidebarAvatar = document.getElementById("sidebar-user-avatar");
+    if (sidebarAvatar) sidebarAvatar.textContent = initials;
+
+    // 3. Account Panel Details
+    const accCardUsername = document.getElementById("account-card-username");
+    if (accCardUsername) accCardUsername.textContent = username.toUpperCase();
+
+    const accAvatar = document.getElementById("account-avatar");
+    if (accAvatar) accAvatar.textContent = initials;
+
+    const accId = document.getElementById("account-detail-id");
+    if (accId) accId.textContent = user.id || user._id || "usr_sim_001";
+
+    const accUser = document.getElementById("account-detail-username");
+    if (accUser) accUser.textContent = username;
+
+    const accEmail = document.getElementById("account-detail-email");
+    if (accEmail) accEmail.textContent = user.email || "operator@turbofan-prognostics.nasa.gov";
+
+    const accMobile = document.getElementById("account-detail-mobile");
+    if (accMobile) accMobile.textContent = user.mobile || "+1 (555) 019-2831";
+
+    // Active Engine unit name in Account panel
+    const accEngine = document.getElementById("account-active-engine");
+    if (accEngine && typeof Dashboard !== "undefined" && Dashboard.getCurrentState) {
+      const st = Dashboard.getCurrentState();
+      accEngine.textContent = st.engine_name || `Engine #${st.engine_id}`;
     }
   }
 
@@ -203,6 +298,12 @@ const App = (() => {
         return;
       }
 
+      // Ignore cycle scrubber shortcuts in menus where the slider is hidden
+      const scrubberBar = document.getElementById("cycle-scrubber-bar");
+      if (scrubberBar && scrubberBar.style.display === "none") {
+        return;
+      }
+
       if (e.code === "Space") {
         e.preventDefault();
         Dashboard.togglePlay();
@@ -268,6 +369,9 @@ const App = (() => {
         // Update hash
         history.replaceState(null, null, `#dashboard/${targetPanelId.replace('panel-', '')}`);
 
+        // Update cycle scrubber visibility (hidden in Batch, Copilot, Account)
+        updateCycleScrubberVisibility(targetPanelId);
+
         // Re-render chart if navigating to trajectory or overview
         if (targetPanelId === "panel-trajectory" || targetPanelId === "panel-overview") {
           setTimeout(() => {
@@ -276,8 +380,42 @@ const App = (() => {
             }
           }, 50);
         }
+
+        // Update profile details when navigating to account
+        if (targetPanelId === "panel-account") {
+          updateUserProfileUI();
+        }
       });
     });
+
+    // Sidebar footer user tile click
+    const sidebarUserTile = document.getElementById("sidebar-user-tile");
+    if (sidebarUserTile) {
+      sidebarUserTile.addEventListener("click", () => {
+        const item = document.querySelector(".sidebar-nav-item[data-target='panel-account']");
+        if (item) item.click();
+      });
+    }
+
+    // Compact sidebar user icon click
+    const compactUserBtn = document.getElementById("sidebar-compact-user-btn");
+    if (compactUserBtn) {
+      compactUserBtn.addEventListener("click", () => {
+        const item = document.querySelector(".sidebar-nav-item[data-target='panel-account']");
+        if (item) item.click();
+      });
+    }
+
+    // Refresh account credentials button in panel-account
+    const btnRefreshAccount = document.getElementById("btn-refresh-account");
+    if (btnRefreshAccount) {
+      btnRefreshAccount.addEventListener("click", async () => {
+        btnRefreshAccount.disabled = true;
+        await updateUserProfileUI();
+        btnRefreshAccount.disabled = false;
+        showToast("Operator account credentials synchronized.", "nominal");
+      });
+    }
   }
 
   // Routing based on hash & session

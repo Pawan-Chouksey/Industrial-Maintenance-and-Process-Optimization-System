@@ -13,7 +13,7 @@
        ========================================================================= -->
   <div id="view-auth" style="display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 24px;">
     <div class="industrial-card" style="width: 100%; max-width: 440px; padding: 32px; border-radius: var(--radius-lg);">
-      
+
       <!-- Brand & Header -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
         <div style="width: 38px; height: 38px; background: var(--bg-surface-3); border: 1px solid var(--border-default); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
@@ -116,12 +116,12 @@
        ========================================================================= -->
   <div id="view-dashboard" style="display: none;">
     <div class="cockpit-layout">
-      
+
       <!-- =====================================================================
            LEFT SIDEBAR (COLLAPSIBLE / EXPANDABLE VIA THREE-BAR LINE ☰)
            ===================================================================== -->
       <aside id="cockpit-sidebar" class="sidebar">
-        
+
         <!-- Sidebar Brand & 3-Bar Toggle -->
         <div class="sidebar-header">
           <div class="sidebar-brand-wrapper">
@@ -215,19 +215,54 @@
             </svg>
             <span class="sidebar-label">AI Maintenance Chatbot</span>
           </button>
+
+          <div class="sidebar-heading" style="margin-top: 10px;">Operator</div>
+
+          <!-- Menu 7: User Account -->
+          <button class="sidebar-nav-item" data-target="panel-account" data-title="User Account" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="sidebar-label">User Account</span>
+          </button>
         </nav>
 
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
           <div class="sidebar-footer-full">
+            <!-- Clickable User Profile Tile in Menu Footer -->
+            <div id="sidebar-user-tile" class="sidebar-user-tile" title="Click to view User Account details" style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 10px; border-radius: var(--radius-sm); background: var(--bg-surface-2); border: 1px solid var(--border-default); cursor: pointer;">
+              <div id="sidebar-user-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: var(--color-primary, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; font-family: var(--font-mono);">
+                OP
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div id="sidebar-user-name" style="font-size: 12px; font-weight: 600; color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                  lead_operator
+                </div>
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">
+                  SYSTEM OPERATOR
+                </div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted); flex-shrink: 0;">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <button class="btn btn-secondary btn-sm btn-logout" type="button">Logout</button>
+              <button class="btn btn-secondary btn-sm btn-logout" type="button" style="width: 100%;">Logout</button>
             </div>
             <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); text-align: center;">
               InfosysSpring Board 2026
             </div>
           </div>
           <div class="sidebar-footer-compact" style="display: none;">
+            <button id="sidebar-compact-user-btn" class="btn-icon" type="button" title="User Account Profile">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </button>
             <button class="btn-icon btn-logout" type="button" title="Sign Out">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -244,11 +279,11 @@
            MAIN COCKPIT CONTENT AREA
            ===================================================================== -->
       <div class="cockpit-main">
-        
+
         <!-- Top Navbar with Three-Bar Line, Engine Selector, Dataset, API Status -->
         <header style="background: var(--bg-surface-1); border-bottom: 1px solid var(--border-default); padding: 12px 24px;">
           <div style="max-width: 1540px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
-            
+
             <!-- Left: Subsystem Title -->
             <div>
               <div style="display: flex; align-items: center; gap: 8px;">
@@ -263,8 +298,8 @@
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span class="form-label" style="margin-bottom: 0;">UNIT:</span>
-                <select id="engine-select" class="form-input font-mono" style="width: 200px; padding: 5px 8px; font-size: 12px;">
-                  <option value="1">Engine #01 (192 Cycles)</option>
+                <select id="engine-select" class="form-input font-mono" style="min-width: 275px; width: auto; max-width: 340px; padding: 5px 8px; font-size: 12px;">
+                  <option value="1">Boeing 737 Turbofan #01 (192 Cycles)</option>
                 </select>
               </div>
 
@@ -307,10 +342,10 @@
         </header>
 
         <!-- Persistent Cycle Scrubber & Streaming Playback Bar (Available across all menus) -->
-        <div style="max-width: 1540px; margin: 16px auto 0; padding: 0 24px; width: 100%;">
+        <div id="cycle-scrubber-bar" style="max-width: 1540px; margin: 16px auto 0; padding: 0 24px; width: 100%;">
           <section class="industrial-card" style="padding: 14px 20px;">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 10px;">
-              
+
               <div style="display: flex; align-items: center; gap: 12px;">
                 <span id="current-cycle-display" class="font-mono" style="font-size: 17px; font-weight: 700; color: var(--text-primary);">
                   CYCLE 1
@@ -365,10 +400,10 @@
                PANEL 1: COCKPIT OVERVIEW (SUMMARY & ALL-IN-ONE SNAPSHOT)
                =================================================================== -->
           <div id="panel-overview" class="cockpit-panel active">
-            
+
             <!-- 4-Column Prognostics KPI Summary Grid -->
             <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-bottom: 20px;">
-              
+
               <!-- CARD 1: Machine Health Index -->
               <div class="industrial-card" style="padding: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
@@ -458,7 +493,7 @@
 
             <!-- Overview Quick Split: Prescriptive Summary & Top Drift Contributors -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;">
-              
+
               <!-- Quick Maintenance Summary Card -->
               <div class="industrial-card" style="padding: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -508,7 +543,7 @@
                =================================================================== -->
           <div id="panel-trajectory" class="cockpit-panel">
             <section class="industrial-card" style="padding: 24px; position: relative;">
-              
+
               <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 18px;">
                 <div>
                   <h2 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono);">
@@ -597,7 +632,7 @@
                 <!-- Table Filter Buttons & Search -->
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                   <input id="telemetry-search" class="form-input font-mono" type="text" placeholder="Filter sensor..." style="width: 150px; padding: 4px 8px; font-size: 11px;" />
-                  
+
                   <div style="display: flex; gap: 4px;">
                     <button class="badge telemetry-filter-btn badge-primary" data-filter="ALL" type="button" style="cursor: pointer;">ALL</button>
                     <button class="badge telemetry-filter-btn badge-neutral" data-filter="TEMP" type="button" style="cursor: pointer;">TEMP</button>
@@ -636,7 +671,7 @@
                =================================================================== -->
           <div id="panel-diagnostics" class="cockpit-panel">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;">
-              
+
               <!-- Card: Prescriptive Maintenance Recommendation Directive -->
               <section class="industrial-card" style="padding: 24px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -693,7 +728,7 @@
                =================================================================== -->
           <div id="panel-batch" class="cockpit-panel">
             <section class="industrial-card" style="padding: 24px; max-width: 800px; margin: 0 auto;">
-              
+
               <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border-default); padding-bottom: 12px;">
                 <h3 style="font-size: 15px; text-transform: uppercase; font-family: var(--font-mono);">
                   Turbofan Telemetry Batch Inference Studio
@@ -742,7 +777,7 @@
                =================================================================== -->
           <div id="panel-copilot" class="cockpit-panel">
             <div style="max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
-              
+
               <!-- Copilot Header -->
               <section class="industrial-card" style="padding: 20px 24px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
@@ -758,7 +793,7 @@
                   <!-- Telemetry Injection Toggle & Current Target -->
                   <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                     <div id="copilot-context-badge" class="badge badge-neutral" style="font-family: var(--font-mono); font-size: 11px;">
-                      Target: Engine #1 | Cycle 1
+                      Target: Boeing 737 Turbofan #01 | Cycle 1
                     </div>
                     <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); cursor: pointer;">
                       <input id="copilot-inject-context" type="checkbox" checked style="cursor: pointer;" />
@@ -787,7 +822,7 @@
 
               <!-- Chat Conversation Container -->
               <section class="industrial-card" style="padding: 0; display: flex; flex-direction: column; min-height: 480px; max-height: 640px; overflow: hidden;">
-                
+
                 <!-- Chat Messages Stream -->
                 <div id="copilot-chat-messages" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
                   <!-- Initial Assistant Greeting -->
@@ -828,6 +863,160 @@
                   </form>
                 </div>
 
+              </section>
+
+            </div>
+          </div>
+
+          <!-- ===================================================================
+               PANEL 7: USER ACCOUNT & OPERATOR CREDENTIAL PROFILE
+               =================================================================== -->
+          <div id="panel-account" class="cockpit-panel">
+            <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+
+              <!-- Account Header Card -->
+              <section class="industrial-card" style="padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                  <div style="display: flex; align-items: center; gap: 18px;">
+                    <div id="account-avatar" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); border: 2px solid var(--border-focus); color: var(--border-focus); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; font-family: var(--font-mono); flex-shrink: 0;">
+                      OP
+                    </div>
+                    <div>
+                      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <h2 id="account-card-username" style="font-size: 20px; font-weight: 700; letter-spacing: 0.04em;">
+                          LEAD_OPERATOR
+                        </h2>
+                        <span class="badge badge-nominal">
+                          <span class="status-dot status-dot-nominal"></span> ACTIVE SESSION
+                        </span>
+                        <span class="badge badge-neutral">LEVEL 3 CLEARANCE</span>
+                      </div>
+                      <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; font-family: var(--font-mono);">
+                        NASA C-MAPSS FLEET OPERATIONS & DIAGNOSTICS SPECIALIST
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <button id="btn-refresh-account" class="btn btn-secondary btn-sm" type="button" title="Refresh profile details from server">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                      </svg>
+                      Refresh Profile
+                    </button>
+                    <button class="btn btn-danger btn-sm btn-logout" type="button">
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Two Column Account Specs Grid -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
+
+                <!-- Card 1: User Identity & Contact -->
+                <section class="industrial-card" style="padding: 20px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-default);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">
+                      Operator Identity & Credentials
+                    </h3>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Operator UID:</span>
+                      <span id="account-detail-id" class="font-mono" style="color: var(--text-primary); font-weight: 600;">usr_sim_001</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Username:</span>
+                      <span id="account-detail-username" class="font-mono" style="color: var(--text-primary); font-weight: 600;">lead_operator</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Work Email:</span>
+                      <span id="account-detail-email" class="font-mono" style="color: var(--text-primary);">operator@turbofan-prognostics.nasa.gov</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Mobile Phone:</span>
+                      <span id="account-detail-mobile" class="font-mono" style="color: var(--text-primary);">+1 (555) 019-2831</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Assigned Role:</span>
+                      <span class="badge badge-neutral">LEAD_OPERATOR</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+                      <span style="color: var(--text-secondary);">Account Status:</span>
+                      <span class="badge badge-nominal">VERIFIED ACTIVE</span>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Card 2: Operational Assignment & Security -->
+                <section class="industrial-card" style="padding: 20px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-default);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">
+                      Operational Authority & Scope
+                    </h3>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Operations Center:</span>
+                      <span style="color: var(--text-primary); font-weight: 600;">NASA Glenn Prognostics Center</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Target Datasets:</span>
+                      <span class="font-mono" style="color: var(--text-primary);">FD001 / FD002 (C-MAPSS)</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Active Target Engine:</span>
+                      <span id="account-active-engine" class="font-mono" style="color: var(--color-primary, #3b82f6); font-weight: 600;">Boeing 737 Turbofan #01</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Security Protocol:</span>
+                      <span class="font-mono" style="color: var(--text-primary);">JWT Bearer (HMAC-SHA256)</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-muted);">
+                      <span style="color: var(--text-secondary);">Session Lifetime:</span>
+                      <span class="font-mono" style="color: var(--text-primary);">24 Hours from Auth</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+                      <span style="color: var(--text-secondary);">Station Host:</span>
+                      <span class="font-mono" style="color: var(--text-secondary);">localhost:8000 / aero-client</span>
+                    </div>
+                  </div>
+                </section>
+
+              </div>
+
+              <!-- Quick Launch Navigation Bar -->
+              <section style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-sm" type="button" onclick="document.querySelector('.sidebar-nav-item[data-target=\'panel-overview\']').click()">
+                  ← Back to Dashboard
+                </button>
+                <button class="btn btn-secondary btn-sm" type="button" onclick="document.querySelector('.sidebar-nav-item[data-target=\'panel-copilot\']').click()">
+                  Open AI Copilot
+                </button>
               </section>
 
             </div>
